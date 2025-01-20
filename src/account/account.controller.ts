@@ -1,49 +1,38 @@
-import { Controller, Get, Post, Put, Delete, Param } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Param, Req } from '@nestjs/common';
 import { AccountService } from './account.service';
-import { AccountDTO } from './account.entity';
+import { RequestAccountDTO } from './request-account.dto';
+import { ResponseAccountDTO } from './response-account.dto';
 
 @Controller('account')
 export class AccountController {
-    constructor(private accServ: AccountService) { };
-    //Notes: database calls are usually asynchronus~
-
-    //Create
-    /*
-     * TODO:
-     * get request body
-     * */ 
-    @Post()
-    async create(): Promise<void> {
-        return this.accServ.create();
-    }
-
-    //Read
+    constructor(private accountService: AccountService) {};
     @Get()
-    async findAll(): Promise<AccountDTO[]> {
-        return await this.accServ.getall();
+    async findAll(): Promise<ResponseAccountDTO[]> {
+        return await this.accountService.getAll();
     }
     @Get(':id')
-    async find(@Param() params: any): Promise<AccountDTO> {
-        return await this.accServ.get(params.id);
+    async find(@Param('id') id: string): Promise<ResponseAccountDTO> {
+        return await this.accountService.get(id);
     }
 
-    //Update
-    /*
-     * TODO:
-     * get request body for updateAll()
-     * */ 
-    @Put()
-    async updateAll(): Promise<string[]> {
-        return await this.accServ.put();
+    @Post()
+    async create(
+        @Req() createAccountDto: RequestAccountDTO
+    ): Promise<ResponseAccountDTO> {
+        return await this.accountService.create(createAccountDto);
     }
+
     @Put(':id')
-    async update(): Promise<string[]> {
-        return await this.accServ.patch();
+    async update(
+        @Param('id') id: string,
+        @Req() updateAccountDto: RequestAccountDTO
+    ): Promise<ResponseAccountDTO> {
+        return await this.accountService.put(id, updateAccountDto);
     }
 
     //Delete
     @Delete(':id')
-    async delete(): Promise<void> {
-        return await this.accServ.delete();
+    async delete(@Param('id') id: string): Promise<void> {
+        return await this.accountService.delete(id);
     }
 }

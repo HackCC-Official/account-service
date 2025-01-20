@@ -1,43 +1,70 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindOptionsWhere, InsertResult, Repository, UpdateResult } from 'typeorm';
-import { AccountDTO } from './account.entity';
-import { UpdateAccountDTO } from './account.interface';
+import { Account } from './account.entity';
+import { RequestAccountDTO } from './request-account.dto';
+import { ResponseAccountDTO } from './response-account.dto';
 
 @Injectable()
 export class AccountService {
     constructor(
-        @InjectRepository(AccountDTO)
-        private accRepo: Repository<AccountDTO>,
+        @InjectRepository(Account)
+        private accountRepository: Repository<Account>,
     ) {}
 
-    //Create
-    create(account: AccountDTO) : Promise<InsertResult> {
-        return this.accRepo.insert(account);
+    /**
+     * 
+     * @param {createAccountDto} Account Creation DTO
+     * @returns {Promise<Account>} Account Entity
+     */
+    async create(createAccountDto: RequestAccountDTO) : Promise<Account> {
+        return this.accountRepository.save(createAccountDto);
     }
 
-    //Read
-    getAll() : Promise<AccountDTO[]> {
-        return this.accRepo.find();
-    }
-    get(id : string) : Promise<AccountDTO> {
-        return this.accRepo.findOneBy({ id });
-    }
-
-    //Update
-    put(id :string, update: UpdateAccountDTO) :Promise<UpdateResult> {
-        return this.accRepo.update(id, update);
-    }
-    //putAll(criteria: FindOptionsWhere<AccountDTO>, update: UpdateAccountDTO): Promise<UpdateResult> {
-    //    return this.accRepo.update(criteria, update);
-    //}
-
-    //Delete
-    delete(ids: string[]) : Promise<UpdateResult> {
-        return this.accRepo.softDelete(ids);
+    /**
+     * 
+     * @returns {Promise<Account[]>} Accounts Array
+     * 
+     * Consideration: Querying feature
+     */
+    async getAll() : Promise<Account[]> {
+        return this.accountRepository.find();
     }
 
+    /**
+     * 
+     * @param {id} Account ID
+     * @returns {Promise<Acount>} Account Entity
+     */
+    async get(id : string) : Promise<Account> {
+        return this.accountRepository.findOneBy({ id });
+    }
+
+    /**
+     * 
+     * @param {id} Account ID
+     * @param {updateAccountDto} Account Update DTO
+     * @returns {Promise<Account>} Account Entity
+     */
+    async put(id: string, updateAccountDto: RequestAccountDTO) :Promise<Account> {
+        // get account
+        const account: Account = await this.get(id);
+        
+        // TODO: Create a global exception handler
+        // if account is not found
+        if (!account) {
+            // throw error
+            throw new Error('Account not found with ID: ' + id);
+        }
+
+        account.email = updateAccountDto.email;
+        account.password = updateAccountDto.password;
+        account.roles = updateAccountDto.roles;
+
+        return this.accountRepository.save(account);
+    }
     
-
-     
+    async delete(id: string) : Promise<void> {
+        this.accountRepository.softDelete(id);
+    }
 }

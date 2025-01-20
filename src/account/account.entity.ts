@@ -1,7 +1,7 @@
 import { Entity, Column, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
-export class AccountDTO {
+export class Account {
     @PrimaryGeneratedColumn()
     id: string;
 
@@ -20,6 +20,6 @@ export class AccountDTO {
     createdAt: string;
     
     @Column()
-    //Is actually a timestampz[]
+
     loggedInAt: string[];
 }
