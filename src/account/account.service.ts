@@ -28,9 +28,9 @@ export class AccountService {
     put(id :string, update: UpdateAccountDTO) :Promise<UpdateResult> {
         return this.accRepo.update(id, update);
     }
-    putAll(criteria: FindOptionsWhere<AccountDTO>, update: UpdateAccountDTO): Promise<UpdateResult> {
-        return this.accRepo.update(criteria, update);
-    }
+    //putAll(criteria: FindOptionsWhere<AccountDTO>, update: UpdateAccountDTO): Promise<UpdateResult> {
+    //    return this.accRepo.update(criteria, update);
+    //}
 
     //Delete
     delete(ids: string[]) : Promise<UpdateResult> {
