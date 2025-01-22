@@ -41,10 +41,8 @@ npm install
 ### Environment Variable
 Use the following env template or the one found `.env.example`.
 ```
-DATABASE_HOST=
-DATABASE_PORT=
-DATABASE_USERNAME=
-DATABASE_PASSWORD=
+DATABASE_URL=
+PORT=
 ```
 
 ## Running the application locally (the L version)

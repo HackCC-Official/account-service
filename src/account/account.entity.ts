@@ -18,8 +18,4 @@ export class Account {
     @Column()
     //Is actually a timestampz
     createdAt: string;
-    
-    @Column()
-
-    loggedInAt: string[];
 }
