@@ -41,8 +41,13 @@ npm install
 ### Environment Variable
 Use the following env template or the one found `.env.example`.
 ```
+# account api
 DATABASE_URL=
 PORT=
+
+# rabbitmq
+RABBITMQ_DEFAULT_PASS_FILE=
+RABBITMQ_DEFAULT_USER_FILE=
 ```
 
 ## Running the application locally (the L version)
