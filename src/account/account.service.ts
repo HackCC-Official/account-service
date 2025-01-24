@@ -4,12 +4,15 @@ import { FindOptionsWhere, InsertResult, Repository, UpdateResult } from 'typeor
 import { Account } from './account.entity';
 import { RequestAccountDTO } from './request-account.dto';
 import { ResponseAccountDTO } from './response-account.dto';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 
 @Injectable()
 export class AccountService {
     constructor(
         @InjectRepository(Account)
         private accountRepository: Repository<Account>,
+        @InjectPinoLogger(AccountService.name)
+        private readonly logger: PinoLogger
     ) {}
 
     /**
@@ -18,7 +21,9 @@ export class AccountService {
      * @returns {Promise<Account>} Account Entity
      */
     async create(createAccountDto: RequestAccountDTO) : Promise<Account> {
-        return this.accountRepository.save(createAccountDto);
+        const account: Account = await this.accountRepository.save(createAccountDto);
+        this.logger.info({ msg: 'Creating account', account });
+        return account;
     }
 
     /**
@@ -61,10 +66,13 @@ export class AccountService {
         account.password = updateAccountDto.password;
         account.roles = updateAccountDto.roles;
 
+        this.logger.info({ msg: 'Updating account', account });
+
         return this.accountRepository.save(account);
     }
     
     async delete(id: string) : Promise<void> {
+        this.logger.info({ msg: 'Deleting account with id:' + id  });
         this.accountRepository.softDelete(id);
     }
 }

@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: Dockerfile.local
     env_file:
-      - ./.env.local
+      - .env.local
     ports:
       - ${PORT}:3000
     volumes:
@@ -16,7 +16,7 @@ services:
     image: rabbitmq:3-management-alpine
     container_name: 'rabbitmq'
     env_file:
-      - ./.env.local
+      - .env.local
     ports:
         - 5672:5672
         - 15672:15672
