@@ -9,8 +9,4 @@ export class RequestAccountDTO {
     password: string;
     @IsArray()
     roles: string;
-    @IsDateString()
-    createdAt: string;
-    @IsArray()
-    loggedInAt: string[];
 }

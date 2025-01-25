@@ -1,14 +1,16 @@
-import { Controller, Get, Post, Put, Delete, Param, Req } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Param, Req, Body } from '@nestjs/common';
 import { AccountService } from './account.service';
 import { RequestAccountDTO } from './request-account.dto';
 import { ResponseAccountDTO } from './response-account.dto';
 
-@Controller('account')
+@Controller('accounts')
 export class AccountController {
     constructor(private accountService: AccountService) {};
 
     @Get()
     async findAll(): Promise<ResponseAccountDTO[]> {
+        console.log("HEY")
+        console.log('TEST')
         return await this.accountService.getAll();
     }
 
@@ -19,7 +21,7 @@ export class AccountController {
 
     @Post()
     async create(
-        @Req() createAccountDto: RequestAccountDTO
+        @Body() createAccountDto: RequestAccountDTO
     ): Promise<ResponseAccountDTO> {
         return await this.accountService.create(createAccountDto);
     }
@@ -27,7 +29,7 @@ export class AccountController {
     @Put(':id')
     async update(
         @Param('id') id: string,
-        @Req() updateAccountDto: RequestAccountDTO
+        @Body() updateAccountDto: RequestAccountDTO
     ): Promise<ResponseAccountDTO> {
         return await this.accountService.put(id, updateAccountDto);
     }

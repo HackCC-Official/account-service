@@ -46,8 +46,8 @@ DATABASE_URL=
 PORT=
 
 # rabbitmq
-RABBITMQ_DEFAULT_PASS_FILE=
-RABBITMQ_DEFAULT_USER_FILE=
+RABBITMQ_USERNAME=
+RABBITMQ_PASSWORD=
 ```
 
 ## Running the application locally (the L version)

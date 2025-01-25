@@ -12,6 +12,8 @@ services:
     # Run in Debug Mode: npm run start:debug --> Don't forget to start your vscode debugger!
     # Run in dev Mode: npm run start:dev
     command: npm run start:dev
+    networks:
+        - hackcc-network
   rabbitmq:
     image: rabbitmq:3-management-alpine
     container_name: 'rabbitmq'
@@ -23,6 +25,7 @@ services:
     volumes:
         - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
         - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
+        - ./rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
     networks:
         - hackcc-network
 networks:

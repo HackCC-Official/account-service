@@ -5,6 +5,7 @@ import { Account } from './account.entity';
 import { RequestAccountDTO } from './request-account.dto';
 import { ResponseAccountDTO } from './response-account.dto';
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
+import { AccountProducerService } from 'src/account-queue/account-producer.provider';
 
 @Injectable()
 export class AccountService {
@@ -12,7 +13,8 @@ export class AccountService {
         @InjectRepository(Account)
         private accountRepository: Repository<Account>,
         @InjectPinoLogger(AccountService.name)
-        private readonly logger: PinoLogger
+        private readonly logger: PinoLogger,
+        private readonly accountProducer: AccountProducerService
     ) {}
 
     /**
@@ -21,8 +23,12 @@ export class AccountService {
      * @returns {Promise<Account>} Account Entity
      */
     async create(createAccountDto: RequestAccountDTO) : Promise<Account> {
-        const account: Account = await this.accountRepository.save(createAccountDto);
+        const account: Account = await this.accountRepository.save({
+            ...createAccountDto,
+            createdAt: (new Date()).toISOString()
+        });
         this.logger.info({ msg: 'Creating account', account });
+        await this.accountProducer.addCreatedAccountToAccountQueue(account);
         return account;
     }
 
