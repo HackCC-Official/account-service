@@ -3,9 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { FindOptionsWhere, InsertResult, Repository, UpdateResult } from 'typeorm';
 import { Account } from './account.entity';
 import { RequestAccountDTO } from './request-account.dto';
-import { ResponseAccountDTO } from './response-account.dto';
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
-import { AccountProducerService } from 'src/account-queue/account-producer.provider';
+import { AccountProducerService } from 'src/account-producer/account-producer.provider';
 
 @Injectable()
 export class AccountService {

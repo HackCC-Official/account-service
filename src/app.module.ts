@@ -4,7 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Account } from './account/account.entity';
 import { LoggerModule } from 'nestjs-pino';
-import { AccountProducerModule } from './account-queue/account-producer.module';
+import { AccountProducerModule } from './account-producer/account-producer.module';
 
 @Module({
     imports: [
