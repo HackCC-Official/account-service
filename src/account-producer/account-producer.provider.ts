@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable, OnModuleInit } from "@nestjs/common";
+import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import amqp, { ChannelWrapper, Channel } from 'amqp-connection-manager';
 import { InjectPinoLogger, PinoLogger } from "nestjs-pino";
@@ -13,11 +13,10 @@ export class AccountProducerService {
 
   constructor(private configService: ConfigService) {
     const connection = amqp.connect(configService.get<string>('RABBITMQ_URL'));
-
     this.channelWrapper = connection.createChannel({
       setup: (channel: Channel) => {
         return channel.assertExchange(
-          configService.get<string>('ACCOUNT_QUEUE'),
+          configService.get<string>('ACCOUNT_EXCHANGE'),
           'topic', 
           {
             durable: true 
@@ -30,7 +29,7 @@ export class AccountProducerService {
   async addCreatedAccountToAccountQueue(responseAccountDTO: ResponseAccountDTO) {
     try {
       await this.channelWrapper.publish(
-        this.configService.get<string>('ACCOUNT_QUEUE'),
+        this.configService.get<string>('ACCOUNT_EXCHANGE'),
         'account.create',
         Buffer.from(JSON.stringify(responseAccountDTO)),
         {

@@ -1,7 +1,7 @@
-import { IsArray, IsDateString, IsEmail, IsString } from "class-validator"
+import { IsArray, IsDateString, IsEmail, IsString, IsUUID } from "class-validator"
 
 export class ResponseAccountDTO {
-  @IsString()
+  @IsUUID()
   id: string;
   @IsEmail()
   email: string;
