@@ -1,8 +1,8 @@
-# HackCC 2025's QR service
+# HackCC 2025's Account API
 
 ## Overview
 
-The QR identification service for HackCC 2025. Its main purpose is to authenticate and identify hacker's account.
+The main Account API for services to use in HackCC.
 
 
 The application service also helps with
@@ -34,7 +34,7 @@ git clone git@github.com:Indraneers/karas-frontend.git
 
 Then enter directory and install the dependencies
 ```bash
-cd qr-service-2025
+cd AccountAPI
 npm install
 ```
 
