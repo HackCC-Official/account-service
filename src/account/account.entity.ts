@@ -1,8 +1,8 @@
 import { Entity, Column, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
-export class AccountDTO {
-    @PrimaryGeneratedColumn()
+export class Account {
+    @PrimaryGeneratedColumn("uuid")
     id: string;
 
     @Column()
@@ -18,8 +18,4 @@ export class AccountDTO {
     @Column()
     //Is actually a timestampz
     createdAt: string;
-    
-    @Column()
-    //Is actually a timestampz[]
-    loggedInAt: string[];
 }

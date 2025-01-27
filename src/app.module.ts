@@ -1,31 +1,41 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { AccountController } from './account/account.controller';
-import { AccountService } from './account/account.service';
 import { AccountModule } from './account/account.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ConfigModule } from '@nestjs/config';
-import { AccountDTO } from './account/account.entity';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { Account } from './account/account.entity';
+import { LoggerModule } from 'nestjs-pino';
+import { AccountProducerModule } from './account-producer/account-producer.module';
 
 @Module({
     imports: [
+        LoggerModule.forRoot({
+            pinoHttp: {
+              autoLogging: false,
+              quietReqLogger: true,
+              transport: {
+                target: 'pino-pretty',
+              },
+            },
+          }),
         ConfigModule.forRoot({
-            envFilePath: ['.env', '.env.development']
+            envFilePath: ['.env', '.env.local']
         }),
-        TypeOrmModule.forRoot({
-            type: 'postgres',
-            host: process.env.DATABASE_HOST,
-            port: Number(process.env.DATABASE_PORT),
-            username: process.env.DATABASE_USER,
-            password: process.env.DATABASE_PASSWORD,
-            database: process.env.DATABASE_NAME,
-            entities: [AccountDTO],
+        TypeOrmModule.forRootAsync({
+          imports: [ConfigModule],
+          useFactory: (configService: ConfigService) => ({
+            type: "postgres",
+            host: configService.get<string>('DATABASE_HOST'),
+            port: configService.get<number>('DATABASE_PORT'),
+            username: configService.get<string>('DATABASE_USERNAME'),
+            password: configService.get<string>('DATABASE_PASSWORD'),
+            database: configService.get<string>('DATABASE_DB'),
+            entities: [Account],
             synchronize: true,
+          }),
+          inject: [ConfigService],
         }),
         AccountModule,
+        AccountProducerModule,
     ],
-    controllers: [AccountController],
-    providers: [AccountService],
 })
 export class AppModule {}

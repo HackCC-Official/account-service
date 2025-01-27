@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AccountDTO } from './account.entity';
+import { Account } from './account.entity';
 import { AccountService } from './account.service';
 import { AccountController } from './account.controller';
+import { AccountProducerModule } from 'src/account-producer/account-producer.module';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([AccountDTO])],
+    imports: [TypeOrmModule.forFeature([Account]), AccountProducerModule],
     providers: [AccountService],
     controllers: [AccountController],
 })
