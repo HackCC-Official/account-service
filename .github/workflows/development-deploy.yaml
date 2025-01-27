@@ -20,7 +20,7 @@ jobs:
         run: |
           echo ${{ secrets.DEV_ENV_FILE }} > .env
         
-          docker compose -f docker-compose.yaml build --no-cache
+          docker compose -f docker-compose.yaml build --no-cache --env-file .env
           docker compose -f docker-compose.yaml push
   deployment:
     needs: build-and-publish
@@ -56,4 +56,4 @@ jobs:
 
             echo "${{ secrets.PAT }}" | docker login ghcr.io --username "${{ github.actor }}" --password-stdin
             docker compose pull
-            docker compose up -d 
+            docker compose up -d --env-file .env
