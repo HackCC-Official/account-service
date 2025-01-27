@@ -29,7 +29,7 @@ Please use the following extension in order to comply to the project's stand
 ### Installation
 At the location of where you want to place this project at, clone the repository using the command below
 ```bash
-https://github.com/jellyfishsh/AccountAPI.git
+git clone https://github.com/jellyfishsh/AccountAPI.git
 ```
 
 Then enter directory and install the dependencies
