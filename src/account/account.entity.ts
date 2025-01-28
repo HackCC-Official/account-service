@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn } from "typeorm";
+import { Entity, Column, PrimaryGeneratedColumn, DeleteDateColumn } from "typeorm";
 
 @Entity()
 export class Account {
@@ -18,4 +18,8 @@ export class Account {
     @Column()
     //Is actually a timestampz
     createdAt: string;
+
+    // Add this column to your entity!
+    @DeleteDateColumn()
+    deletedAt?: Date;
 }
