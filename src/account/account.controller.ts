@@ -9,13 +9,11 @@ export class AccountController {
 
     @Get()
     async findAll(): Promise<ResponseAccountDTO[]> {
-        console.log("HEY")
-        console.log('TEST')
         return await this.accountService.getAll();
     }
 
-    @Get(':id')
-    async find(@Param('id') id: string): Promise<ResponseAccountDTO> {
+    @Get(':account_id')
+    async find(@Param('account_id') id: string): Promise<ResponseAccountDTO> {
         return await this.accountService.get(id);
     }
 
@@ -26,16 +24,16 @@ export class AccountController {
         return await this.accountService.create(createAccountDto);
     }
 
-    @Put(':id')
+    @Put(':account_id')
     async update(
-        @Param('id') id: string,
+        @Param('account_id') id: string,
         @Body() updateAccountDto: RequestAccountDTO
     ): Promise<ResponseAccountDTO> {
         return await this.accountService.put(id, updateAccountDto);
     }
 
-    @Delete(':id')
-    async delete(@Param('id') id: string): Promise<void> {
+    @Delete(':account_id')
+    async delete(@Param('account_id') id: string): Promise<void> {
         return await this.accountService.delete(id);
     }
 }
