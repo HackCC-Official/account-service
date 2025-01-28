@@ -36,11 +36,31 @@ export class AccountProducerService {
           persistent: true
         }
       )
-      this.logger.info("Sending account to queue", responseAccountDTO);
+      this.logger.info("Sending created account to queue", responseAccountDTO);
+    } catch (error) {
+      this.logger.info("Account queue error", error);
+      throw new HttpException(
+        'Error adding created account to queue',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async addDeletedAccountToAccountQueue(responseAccountDTO: ResponseAccountDTO) {
+    try {
+      await this.channelWrapper.publish(
+        this.configService.get<string>('ACCOUNT_EXCHANGE'),
+        'account.delete',
+        Buffer.from(JSON.stringify(responseAccountDTO)),
+        {
+          persistent: true
+        }
+      )
+      this.logger.info("Sending deleted account to queue", responseAccountDTO);
     } catch (error) {
       this.logger.info("Acccout queue error", error);
       throw new HttpException(
-        'Error adding account to queue',
+        'Error adding delete account to queue',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }

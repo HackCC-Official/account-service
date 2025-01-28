@@ -78,6 +78,9 @@ export class AccountService {
     
     async delete(id: string) : Promise<void> {
         this.logger.info({ msg: 'Deleting account with id:' + id  });
+        const account: Account = await this.get(id);
+
         this.accountRepository.softDelete(id);
+        this.accountProducer.addDeletedAccountToAccountQueue(account)
     }
 }
