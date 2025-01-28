@@ -19,9 +19,9 @@ services:
       - 5672:5672
       - 15672:15672
     volumes:
-      - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
-      - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
-      - ./rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
+      - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/:rw
+      - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq:rw
+      - ./rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:rw
     networks:
       - hackcc-network
 networks:
