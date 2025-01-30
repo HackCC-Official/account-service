@@ -2,22 +2,36 @@ import { Controller, Get, Post, Put, Delete, Param, Req, Body } from '@nestjs/co
 import { AccountService } from './account.service';
 import { RequestAccountDTO } from './request-account.dto';
 import { ResponseAccountDTO } from './response-account.dto';
+import { ApiOperation, ApiParam } from '@nestjs/swagger';
 
 @Controller('accounts')
 export class AccountController {
     constructor(private accountService: AccountService) {};
 
     @Get()
+    @ApiOperation({
+        summary: 'Finds all Accounts'
+    })
     async findAll(): Promise<ResponseAccountDTO[]> {
         return await this.accountService.getAll();
     }
 
     @Get(':account_id')
+    @ApiOperation({
+        summary: 'Finds an Account by account_id'
+    })
+    @ApiParam({
+        description: 'ID of an existing account',
+        name: 'account_id'
+    })
     async find(@Param('account_id') id: string): Promise<ResponseAccountDTO> {
         return await this.accountService.get(id);
     }
 
     @Post()
+    @ApiOperation({
+        summary: 'Creates an Account for a hacker/organizer/judge/etc AND sends a message to all queues that listen for account creation'
+    })
     async create(
         @Body() createAccountDto: RequestAccountDTO
     ): Promise<ResponseAccountDTO> {
@@ -25,6 +39,13 @@ export class AccountController {
     }
 
     @Put(':account_id')
+    @ApiOperation({
+        summary: 'Updates an existing Account AND sends a message to all queues that listen for account update'
+    })
+    @ApiParam({
+        description: 'ID of an existing account',
+        name: 'account_id'
+    })
     async update(
         @Param('account_id') id: string,
         @Body() updateAccountDto: RequestAccountDTO
@@ -33,6 +54,13 @@ export class AccountController {
     }
 
     @Delete(':account_id')
+    @ApiOperation({
+        summary: 'Deletes an existing Account AND sends a message to all queues that listen for account deletion'
+    })
+    @ApiParam({
+        description: 'ID of an existing account',
+        name: 'account_id'
+    })
     async delete(@Param('account_id') id: string): Promise<void> {
         return await this.accountService.delete(id);
     }

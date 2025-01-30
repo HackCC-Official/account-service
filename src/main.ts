@@ -13,7 +13,7 @@ async function bootstrap() {
     .setTitle('Account Service')
     .setDescription('Account Service API Documentation')
     .setVersion('0.1')
-    .addTag('Account', 'Endpoints for Account API')
+    .addTag('Account', 'Endpoints for Account API integrated with queue (ask Evan how to listen for user creaton/update/deletion)')
     .build()
 
   const documentFactory = () => SwaggerModule.createDocument(app, config, { ignoreGlobalPrefix: false });
