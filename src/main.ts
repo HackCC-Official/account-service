@@ -6,10 +6,6 @@ async function bootstrap() {
     bufferLogs: true
   });
   
-  if (process.env.NODE_ENV === 'production') {
-    app.setGlobalPrefix('account-service');
-  }
-
   await app.listen(3000);
 }
 bootstrap();
