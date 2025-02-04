@@ -44,10 +44,18 @@ export class AccountService {
     /**
      * 
      * @param {id} Account ID
-     * @returns {Promise<Acount>} Account Entity
+     * @returns {Promise<Account>} Account Entity
      */
     async get(id : string) : Promise<Account> {
         return this.accountRepository.findOneBy({ id });
+    }
+
+    /**
+     * @param {email} Account Email
+     * @returns {Promsie<Account>} Account Entity
+     */
+    async getByEmail(email : string) : Promise<Account> {
+        return this.accountRepository.findOneBy({email: email});
     }
 
     /**
