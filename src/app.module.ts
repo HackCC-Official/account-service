@@ -5,6 +5,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Account } from './account/account.entity';
 import { LoggerModule } from 'nestjs-pino';
 import { AccountProducerModule } from './account-producer/account-producer.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
     imports: [
@@ -36,6 +37,7 @@ import { AccountProducerModule } from './account-producer/account-producer.modul
         }),
         AccountModule,
         AccountProducerModule,
+        AuthModule,
     ],
 })
 export class AppModule {}
