@@ -5,6 +5,7 @@ import { Account } from './account.entity';
 import { RequestAccountDTO } from './request-account.dto';
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { AccountProducerService } from 'src/account-producer/account-producer.provider';
+import { hash } from 'bcrypt';
 
 @Injectable()
 export class AccountService {
@@ -22,6 +23,12 @@ export class AccountService {
      * @returns {Promise<Account>} Account Entity
      */
     async create(createAccountDto: RequestAccountDTO) : Promise<Account> {
+        const saltRounds = 10;
+        //BCRYPT THE PASSWORD FIRST
+        hash(createAccountDto.password, saltRounds, function(err, hash) {
+            createAccountDto.password = hash;
+        })
+
         const account: Account = await this.accountRepository.save({
             ...createAccountDto,
             createdAt: (new Date()).toISOString()
