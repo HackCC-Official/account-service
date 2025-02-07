@@ -1,8 +1,18 @@
-import { Controller, Get, Post, Put, Delete, Param, Req, Body } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Param, Req, Body, Query, ValidationPipe } from '@nestjs/common';
 import { AccountService } from './account.service';
 import { RequestAccountDTO } from './request-account.dto';
 import { ResponseAccountDTO } from './response-account.dto';
-import { ApiOperation, ApiParam } from '@nestjs/swagger';
+import { ApiOperation, ApiParam, ApiQuery } from '@nestjs/swagger';
+import { IsArray, IsOptional, IsString } from 'class-validator';
+import { Transform } from 'class-transformer';
+
+class AccountQueryParamDTO {
+    @IsOptional()
+    @IsArray()
+    @IsString({ each: true })
+    @Transform(({ value }) => value.toString().split(','))
+    account_ids: string[];
+}
 
 @Controller('accounts')
 export class AccountController {
@@ -12,7 +22,17 @@ export class AccountController {
     @ApiOperation({
         summary: 'Finds all Accounts'
     })
-    async findAll(): Promise<ResponseAccountDTO[]> {
+    @ApiQuery({
+        required: false,
+        name: 'account_ids',
+        description: 'Given a list of account_ids, it will batch fetch the accounts'
+    })
+    async findAll(
+        @Query(new ValidationPipe({ transform: true })) query: AccountQueryParamDTO
+    ): Promise<ResponseAccountDTO[]> {
+        if (query.account_ids) {
+            return await this.accountService.getByIds(query.account_ids);
+        }
         return await this.accountService.getAll();
     }
 
