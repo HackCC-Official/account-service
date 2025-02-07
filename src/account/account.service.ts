@@ -50,6 +50,11 @@ export class AccountService {
         return this.accountRepository.findOneBy({ id });
     }
 
+    /**
+     * 
+     * @param {ids} Account IDs as a string array 
+     * @returns {Promise<Account[]>} Accounts Array
+     */
     async getByIds(ids: string[]): Promise<Account[]> {
         return this.accountRepository.findBy({
             id: In(ids)
@@ -82,6 +87,10 @@ export class AccountService {
         return this.accountRepository.save(account);
     }
     
+    /**
+     * 
+     * @param {id} Account ID 
+     */
     async delete(id: string) : Promise<void> {
         this.logger.info({ msg: 'Deleting account with id:' + id  });
         const account: Account = await this.get(id);
