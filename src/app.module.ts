@@ -5,6 +5,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Account } from './account/account.entity';
 import { LoggerModule } from 'nestjs-pino';
 import { AccountProducerModule } from './account-producer/account-producer.module';
+import { TeamModule } from './team/team.module';
+import { Team } from './team/team.entity';
 
 @Module({
     imports: [
@@ -29,13 +31,14 @@ import { AccountProducerModule } from './account-producer/account-producer.modul
             username: configService.get<string>('DATABASE_USERNAME'),
             password: configService.get<string>('DATABASE_PASSWORD'),
             database: configService.get<string>('DATABASE_DB'),
-            entities: [Account],
+            entities: [Account, Team],
             synchronize: true,
           }),
           inject: [ConfigService],
         }),
         AccountModule,
         AccountProducerModule,
+        TeamModule
     ],
 })
 export class AppModule {}

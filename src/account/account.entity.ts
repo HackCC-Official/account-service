@@ -1,4 +1,5 @@
-import { Entity, Column, PrimaryGeneratedColumn, DeleteDateColumn } from "typeorm";
+import { Team } from "src/team/team.entity";
+import { Entity, Column, PrimaryGeneratedColumn, DeleteDateColumn, ManyToOne } from "typeorm";
 
 @Entity()
 export class Account {
@@ -22,4 +23,7 @@ export class Account {
     // Add this column to your entity!
     @DeleteDateColumn()
     deletedAt?: Date;
+
+    @ManyToOne(() => Team, (team) => team.accounts)
+    team: Team;
 }
