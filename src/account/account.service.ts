@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOptionsWhere, InsertResult, Repository, UpdateResult } from 'typeorm';
+import { FindOptionsWhere, In, InsertResult, Repository, UpdateResult } from 'typeorm';
 import { Account } from './account.entity';
 import { RequestAccountDTO } from './request-account.dto';
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
@@ -18,21 +18,6 @@ export class AccountService {
 
     /**
      * 
-     * @param {createAccountDto} Account Creation DTO
-     * @returns {Promise<Account>} Account Entity
-     */
-    async create(createAccountDto: RequestAccountDTO) : Promise<Account> {
-        const account: Account = await this.accountRepository.save({
-            ...createAccountDto,
-            createdAt: (new Date()).toISOString()
-        });
-        this.logger.info({ msg: 'Creating account', account });
-        await this.accountProducer.addCreatedAccountToAccountQueue(account);
-        return account;
-    }
-
-    /**
-     * 
      * @returns {Promise<Account[]>} Accounts Array
      * 
      * Consideration: Querying feature
@@ -46,19 +31,45 @@ export class AccountService {
      * @param {id} Account ID
      * @returns {Promise<Acount>} Account Entity
      */
-    async get(id : string) : Promise<Account> {
-        return this.accountRepository.findOneBy({ id });
+    async getByIdOrFail(id : string) : Promise<Account> {
+        return this.accountRepository.findOneByOrFail({ id });
+    }
+
+    /**
+     * 
+     * @param {ids} Account IDs as a string array 
+     * @returns {Promise<Account[]>} Accounts Array
+     */
+    async getByIds(ids: string[]): Promise<Account[]> {
+        return this.accountRepository.findBy({
+            id: In(ids)
+        })
+    }
+
+    /**
+     * 
+     * @param {createAccountDto} Account Creation DTO
+     * @returns {Promise<Account>} Account Entity
+     */
+    async create(createAccountDTO: RequestAccountDTO) : Promise<Account> {
+        const account: Account = await this.accountRepository.save({
+            ...createAccountDTO,
+            createdAt: (new Date()).toISOString()
+        });
+        this.logger.info({ msg: 'Creating account', account });
+        await this.accountProducer.addCreatedAccountToAccountQueue(account);
+        return account;
     }
 
     /**
      * 
      * @param {id} Account ID
-     * @param {updateAccountDto} Account Update DTO
+     * @param {updateAccountDTO} Account Update DTO
      * @returns {Promise<Account>} Account Entity
      */
-    async put(id: string, updateAccountDto: RequestAccountDTO) :Promise<Account> {
+    async update(id: string, updateAccountDTO: RequestAccountDTO) :Promise<Account> {
         // get account
-        const account: Account = await this.get(id);
+        const account: Account = await this.getByIdOrFail(id);
         
         // TODO: Create a global exception handler
         // if account is not found
@@ -67,18 +78,22 @@ export class AccountService {
             throw new Error('Account not found with ID: ' + id);
         }
 
-        account.email = updateAccountDto.email;
-        account.password = updateAccountDto.password;
-        account.roles = updateAccountDto.roles;
+        account.email = updateAccountDTO.email;
+        account.password = updateAccountDTO.password;
+        account.roles = updateAccountDTO.roles;
 
         this.logger.info({ msg: 'Updating account', account });
 
         return this.accountRepository.save(account);
     }
     
+    /**
+     * 
+     * @param {id} Account ID 
+     */
     async delete(id: string) : Promise<void> {
         this.logger.info({ msg: 'Deleting account with id:' + id  });
-        const account: Account = await this.get(id);
+        const account: Account = await this.getByIdOrFail(id);
 
         this.accountRepository.softDelete(id);
         this.accountProducer.addDeletedAccountToAccountQueue(account)

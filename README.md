@@ -42,8 +42,15 @@ npm install
 Use the following env template or the one found `.env.example`.
 ```
 # account api
-DATABASE_URL=
+# account api
+DATABASE_HOST=
+DATABASE_USERNAME=
+DATABASE_PASSWORD=
+DATABASE_PORT=
+DATABASE_DB=
 PORT=
+ACCOUNT_EXCHANGE=
+RABBITMQ_URL=
 
 # rabbitmq
 RABBITMQ_USERNAME=
