@@ -17,7 +17,7 @@ export class ResponseAccountDTO {
     example: '["USER", "ORGANIZER"]',
     type: [String]
   })
-  roles: string;
+  roles: string[];
   @IsDateString()
   @ApiProperty({
     example: "2025-01-30T07:03:08.307Z"

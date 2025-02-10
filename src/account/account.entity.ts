@@ -14,7 +14,7 @@ export class Account {
 
     @Column()
     //Is actually a jsonb
-    roles: string;
+    roles: string[];
 
     @Column()
     //Is actually a timestampz

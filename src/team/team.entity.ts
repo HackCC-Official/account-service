@@ -9,7 +9,7 @@ export class Team {
   @Column()
   name: string;
 
-  @OneToMany(() => Account, (account) => account.team) 
+  @OneToMany(() => Account, (account) => account.team, { orphanedRowAction: 'nullify' }) 
   accounts: Account[];
 
   @Column()

@@ -45,7 +45,7 @@ export class AccountController {
         name: 'account_id'
     })
     async find(@Param('account_id') id: string): Promise<ResponseAccountDTO> {
-        return await this.accountService.get(id);
+        return await this.accountService.getByIdOrFail(id);
     }
 
     @Post()
