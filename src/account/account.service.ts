@@ -67,7 +67,7 @@ export class AccountService {
      * @param {updateAccountDTO} Account Update DTO
      * @returns {Promise<Account>} Account Entity
      */
-    async put(id: string, updateAccountDTO: RequestAccountDTO) :Promise<Account> {
+    async update(id: string, updateAccountDTO: RequestAccountDTO) :Promise<Account> {
         // get account
         const account: Account = await this.getByIdOrFail(id);
         

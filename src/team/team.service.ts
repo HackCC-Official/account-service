@@ -5,12 +5,15 @@ import { Repository } from "typeorm";
 import { InjectPinoLogger, PinoLogger } from "nestjs-pino";
 import { RequestTeamDTO } from "./request-team.dto";
 import { Account } from "src/account/account.entity";
+import { ResponseTeamDTO } from "./response-team.dto";
+import { AccountService } from "src/account/account.service";
 
 @Injectable()
 export class TeamService {
   constructor(
     @InjectRepository(Team)
     private teamRepository: Repository<Team>,
+    private accountService: AccountService,
     @InjectPinoLogger(TeamService.name)
     private readonly logger: PinoLogger
   ) {}
@@ -20,7 +23,11 @@ export class TeamService {
    * @returns {Promise<Team[]>} Teams Array
    */
   async getAll(): Promise<Team[]> {
-    return this.teamRepository.find();
+    return this.teamRepository.find({
+      relations: {
+        accounts: true
+      }
+    });
   }
 
   /**
@@ -38,14 +45,21 @@ export class TeamService {
    * @returns {Promise<Team>} Team Entity
    */
   async create(createTeamDTO: RequestTeamDTO): Promise<Team> {
+    const accounts: Account[] = [];
+
+    for (const account_id of createTeamDTO.account_ids) {
+      console.log(account_id)
+      const account = await this.accountService.getByIdOrFail(account_id)
+      console.log(account)
+      accounts.push(account)
+    }
+
+    console.log(accounts)
+
     const team = await this.teamRepository.save({
-      ...createTeamDTO,
-      account: createTeamDTO.account_ids.map(a => {
-        const account = new Account()
-        account.id = a
-        return account
-      }),
-      createdAt: (new Date()).toISOString()
+      name: createTeamDTO.name,
+      createdAt: (new Date()).toISOString(),
+      accounts
     })
 
     this.logger.info({ msg: 'Creating team', team });
@@ -59,19 +73,29 @@ export class TeamService {
    * @param {updateTeamDTO} Team Update DTO
    * @returns {Promise<Team>} Team Entity
    */
-  async put(id: string, updateTeamDTO: RequestTeamDTO): Promise<Team> {
+  async update(id: string, updateTeamDTO: RequestTeamDTO): Promise<Team> {
     // get team
     const team = await this.getByIdOrFail(id);
+
+    const accounts: Account[] = [];
+
+    for (const account_id of updateTeamDTO.account_ids) {
+      const account = await this.accountService.getByIdOrFail(account_id)
+      accounts.push(account)
+    }
     
     team.name = updateTeamDTO.name;
-    team.accounts = updateTeamDTO.account_ids.map(a => {
-      const account = new Account()
-      account.id = a
-      return account
-    })
+    team.accounts = accounts;
 
     this.logger.info({ msg: 'Updating team', team });
 
     return this.teamRepository.save(team)
+  }
+
+  async delete(id: string): Promise<void> {
+    const team = await this.getByIdOrFail(id);
+
+    this.logger.info({ msg: 'Deleting team', team });
+    this.teamRepository.delete(id)
   }
 }

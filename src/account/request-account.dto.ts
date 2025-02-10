@@ -17,5 +17,5 @@ export class RequestAccountDTO {
         example: '["USER", "ORGANIZER"]',
         type: [String]
     })
-    roles: string[];
+    roles: string;
 }

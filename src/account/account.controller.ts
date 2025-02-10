@@ -53,9 +53,9 @@ export class AccountController {
         summary: 'Creates an Account for a hacker/organizer/judge/etc AND sends a message to all queues that listen for account creation'
     })
     async create(
-        @Body() createAccountDto: RequestAccountDTO
+        @Body() createAccountDTO: RequestAccountDTO
     ): Promise<ResponseAccountDTO> {
-        return await this.accountService.create(createAccountDto);
+        return await this.accountService.create(createAccountDTO);
     }
 
     @Put(':account_id')
@@ -68,9 +68,9 @@ export class AccountController {
     })
     async update(
         @Param('account_id') id: string,
-        @Body() updateAccountDto: RequestAccountDTO
+        @Body() updateAccountDTO: RequestAccountDTO
     ): Promise<ResponseAccountDTO> {
-        return await this.accountService.put(id, updateAccountDto);
+        return await this.accountService.update(id, updateAccountDTO);
     }
 
     @Delete(':account_id')

@@ -14,7 +14,7 @@ export class Account {
 
     @Column()
     //Is actually a jsonb
-    roles: string[];
+    roles: string;
 
     @Column()
     //Is actually a timestampz
@@ -24,6 +24,6 @@ export class Account {
     @DeleteDateColumn()
     deletedAt?: Date;
 
-    @ManyToOne(() => Team, (team) => team.accounts)
+    @ManyToOne(() => Team, (team) => team.accounts, { nullable: true, onDelete: "SET NULL" })
     team: Team;
 }
