@@ -8,12 +8,6 @@ export class RequestAccountDTO {
     })
     email: string;
     @IsString()
-    @IsNotEmpty()
-    @ApiProperty({
-        example: 'hackerman123'
-    })
-    username: string;
-    @IsString()
     @ApiProperty({
         example: 'Hacker'
     })

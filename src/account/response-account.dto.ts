@@ -18,12 +18,6 @@ export class ResponseAccountDTO {
     type: [String]
   })
   @IsString()
-  @IsNotEmpty()
-  @ApiProperty({
-      example: 'hackerman123'
-  })
-  username: string;
-  @IsString()
   @ApiProperty({
       example: 'Hacker'
   })
