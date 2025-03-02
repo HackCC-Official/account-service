@@ -9,6 +9,15 @@ export class Account {
     @Column()
     email: string;
 
+    @Column({ nullable: false, unique: true })
+    username: string;
+
+    @Column()
+    firstName: string;
+
+    @Column()
+    lastName: string;
+
     @Column()
     password: string;
 

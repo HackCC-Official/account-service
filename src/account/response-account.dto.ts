@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsArray, IsDateString, IsEmail, IsString, IsUUID } from "class-validator"
+import { IsArray, IsDateString, IsEmail, IsNotEmpty, IsString, IsUUID } from "class-validator"
 
 export class ResponseAccountDTO {
   @IsUUID()
@@ -17,6 +17,22 @@ export class ResponseAccountDTO {
     example: '["USER", "ORGANIZER"]',
     type: [String]
   })
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty({
+      example: 'hackerman123'
+  })
+  username: string;
+  @IsString()
+  @ApiProperty({
+      example: 'Hacker'
+  })
+  firstName: string;
+  @IsString()
+  @ApiProperty({
+      example: 'Man'
+  })
+  lastName: string;
   roles: string;
   @IsDateString()
   @ApiProperty({

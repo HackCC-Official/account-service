@@ -81,6 +81,9 @@ export class AccountService {
         account.email = updateAccountDTO.email;
         account.password = updateAccountDTO.password;
         account.roles = updateAccountDTO.roles;
+        account.username = updateAccountDTO.username;
+        account.firstName = updateAccountDTO.firstName;
+        account.lastName = updateAccountDTO.lastName;
 
         this.logger.info({ msg: 'Updating account', account });
 
