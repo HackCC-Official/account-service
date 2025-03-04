@@ -1,10 +1,11 @@
-import { Controller, Get, Post, Put, Delete, Param, Req, Body, Query, ValidationPipe } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Param, Req, Body, Query, ValidationPipe, UseGuards } from '@nestjs/common';
 import { AccountService } from './account.service';
 import { RequestAccountDTO } from './request-account.dto';
 import { ResponseAccountDTO } from './response-account.dto';
 import { ApiOperation, ApiParam, ApiQuery } from '@nestjs/swagger';
 import { IsArray, IsOptional, IsString } from 'class-validator';
 import { Transform } from 'class-transformer';
+import { JwtAuthGuard } from 'src/auth/jwt.auth.guard';
 
 class AccountQueryParamDTO {
     @IsOptional()
@@ -17,6 +18,15 @@ class AccountQueryParamDTO {
 @Controller('accounts')
 export class AccountController {
     constructor(private accountService: AccountService) {};
+
+    @Get('/protected')
+    @UseGuards(JwtAuthGuard)
+    async protected(@Req() req) {
+      return {
+        "message": "AuthGuard works 🎉",
+        "authenticated_user": req.user
+      };
+    }
 
     @Get()
     @ApiOperation({
