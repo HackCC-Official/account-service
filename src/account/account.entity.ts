@@ -16,9 +16,6 @@ export class Account {
     lastName: string;
 
     @Column()
-    password: string;
-
-    @Column()
     //Is actually a jsonb
     roles: string;
 

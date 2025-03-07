@@ -5,9 +5,10 @@ import { AccountService } from './account.service';
 import { AccountController } from './account.controller';
 import { AccountProducerModule } from 'src/account-producer/account-producer.module';
 import { Team } from 'src/team/team.entity';
+import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([Account, Team]), AccountProducerModule],
+    imports: [TypeOrmModule.forFeature([Account, Team]), AccountProducerModule, AuthModule],
     providers: [AccountService],
     controllers: [AccountController],
     exports: [AccountService]
