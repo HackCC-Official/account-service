@@ -1,12 +1,13 @@
 import { Team } from "src/team/team.entity";
 import { Entity, Column, PrimaryGeneratedColumn, DeleteDateColumn, ManyToOne } from "typeorm";
+import { AccountRoles } from "./role.enum";
 
 @Entity()
 export class Account {
     @PrimaryGeneratedColumn("uuid")
     id: string;
 
-    @Column()
+    @Column({ unique: true })
     email: string;
 
     @Column()
@@ -15,9 +16,8 @@ export class Account {
     @Column()
     lastName: string;
 
-    @Column()
-    //Is actually a jsonb
-    roles: string;
+    @Column('text', { array: true })
+    roles: AccountRoles[];
 
     @Column()
     //Is actually a timestampz

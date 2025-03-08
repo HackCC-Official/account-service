@@ -6,6 +6,10 @@ import { ApiOperation, ApiParam, ApiQuery } from '@nestjs/swagger';
 import { IsArray, IsOptional, IsString } from 'class-validator';
 import { Transform } from 'class-transformer';
 import { JwtAuthGuard } from 'src/auth/jwt.auth.guard';
+import { Roles } from 'src/auth/roles.decorator';
+import { AccountRoles } from './role.enum';
+import { AuthGuard } from '@nestjs/passport';
+import { RolesGuard } from 'src/auth/roles.guard';
 
 class AccountQueryParamDTO {
     @IsOptional()
@@ -20,7 +24,8 @@ export class AccountController {
     constructor(private accountService: AccountService) {};
 
     @Get('/protected')
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles([AccountRoles.USER])
     async protected(@Req() req) {
       return {
         "message": "AuthGuard works 🎉",
@@ -37,6 +42,8 @@ export class AccountController {
         name: 'account_ids',
         description: 'Given a list of account_ids, it will batch fetch the accounts'
     })
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles([AccountRoles.JUDGE, AccountRoles.ADMIN, AccountRoles.ORGANIZER])
     async findAll(
         @Query(new ValidationPipe({ transform: true })) query: AccountQueryParamDTO
     ): Promise<ResponseAccountDTO[]> {
@@ -54,6 +61,8 @@ export class AccountController {
         description: 'ID of an existing account',
         name: 'account_id'
     })
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles([AccountRoles.JUDGE, AccountRoles.ADMIN, AccountRoles.ORGANIZER])
     async find(@Param('account_id') id: string): Promise<ResponseAccountDTO> {
         return await this.accountService.getByIdOrFail(id);
     }
@@ -62,6 +71,8 @@ export class AccountController {
     @ApiOperation({
         summary: 'Creates an Account for a hacker/organizer/judge/etc AND sends a message to all queues that listen for account creation'
     })
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles([AccountRoles.ADMIN, AccountRoles.ORGANIZER])
     async create(
         @Body() createAccountDTO: RequestAccountDTO
     ): Promise<ResponseAccountDTO> {
@@ -76,6 +87,8 @@ export class AccountController {
         description: 'ID of an existing account',
         name: 'account_id'
     })
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles([AccountRoles.JUDGE, AccountRoles.ADMIN, AccountRoles.ORGANIZER])
     async update(
         @Param('account_id') id: string,
         @Body() updateAccountDTO: RequestAccountDTO
@@ -91,6 +104,8 @@ export class AccountController {
         description: 'ID of an existing account',
         name: 'account_id'
     })
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles([AccountRoles.JUDGE, AccountRoles.ADMIN, AccountRoles.ORGANIZER])
     async delete(@Param('account_id') id: string): Promise<void> {
         return await this.accountService.delete(id);
     }

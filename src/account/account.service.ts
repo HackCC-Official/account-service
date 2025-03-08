@@ -6,6 +6,7 @@ import { RequestAccountDTO } from './request-account.dto';
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { AccountProducerService } from 'src/account-producer/account-producer.provider';
 import { SupabaseService } from 'src/auth/supabase.service';
+import { AccountRoles } from './role.enum';
 
 @Injectable()
 export class AccountService {
@@ -56,16 +57,15 @@ export class AccountService {
     async create(createAccountDTO: RequestAccountDTO) : Promise<Account> {
         const { password, ...accountDTO } = createAccountDTO;
 
-        console.log(accountDTO)
+        const accountFromAuth = await this.supabaseService
+        .getClient()
+        .auth.signUp({ email: accountDTO.email, password });
 
         const account: Account = await this.accountRepository.save({
+            id: accountFromAuth.data.user.id,
             ...accountDTO,
             createdAt: (new Date()).toISOString()
         });
-
-        await this.supabaseService
-          .getClient()
-          .auth.signUp({ email: accountDTO.email, password });
 
         this.logger.info({ msg: 'Creating account', account });
         await this.accountProducer.addCreatedAccountToAccountQueue(account);
@@ -90,7 +90,7 @@ export class AccountService {
         }
 
         account.email = updateAccountDTO.email;
-        account.roles = updateAccountDTO.roles;
+        account.roles = updateAccountDTO.roles,
         account.firstName = updateAccountDTO.firstName;
         account.lastName = updateAccountDTO.lastName;
 
