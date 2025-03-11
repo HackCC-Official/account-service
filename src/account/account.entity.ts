@@ -1,20 +1,23 @@
 import { Team } from "src/team/team.entity";
 import { Entity, Column, PrimaryGeneratedColumn, DeleteDateColumn, ManyToOne } from "typeorm";
+import { AccountRoles } from "./role.enum";
 
 @Entity()
 export class Account {
     @PrimaryGeneratedColumn("uuid")
     id: string;
 
-    @Column()
+    @Column({ unique: true })
     email: string;
 
     @Column()
-    password: string;
+    firstName: string;
 
     @Column()
-    //Is actually a jsonb
-    roles: string;
+    lastName: string;
+
+    @Column('text', { array: true })
+    roles: AccountRoles[];
 
     @Column()
     //Is actually a timestampz

@@ -1,8 +1,12 @@
-import { Body, Controller, Delete, Get, Param, Post, Put } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from "@nestjs/common";
 import { TeamService } from "./team.service";
 import { ApiOperation, ApiParam } from "@nestjs/swagger";
 import { ResponseTeamDTO } from "./response-team.dto";
 import { RequestTeamDTO } from "./request-team.dto";
+import { JwtAuthGuard } from "src/auth/jwt.auth.guard";
+import { RolesGuard } from "src/auth/roles.guard";
+import { AccountRoles } from "src/account/role.enum";
+import { Roles } from "src/auth/roles.decorator";
 
 @Controller('teams')
 export class TeamController {
@@ -12,6 +16,8 @@ export class TeamController {
   @ApiOperation({
     summary: 'Finds all Teams'
   })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles([AccountRoles.JUDGE, AccountRoles.ADMIN, AccountRoles.ORGANIZER])
   async findAll(): Promise<ResponseTeamDTO[]> {
     return await this.teamService.getAll()
   }
@@ -24,6 +30,8 @@ export class TeamController {
     description: 'ID of an existing team',
     name: 'team_id'
   })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles([AccountRoles.JUDGE, AccountRoles.ADMIN, AccountRoles.ORGANIZER])
   async find(@Param('team_id') id: string) {
     return await this.teamService.getByIdOrFail(id);
   }
@@ -32,6 +40,8 @@ export class TeamController {
   @ApiOperation({
     summary: 'Creates a Team of hackers at the hackathon'
   })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles([AccountRoles.JUDGE, AccountRoles.ADMIN, AccountRoles.ORGANIZER])
   async create(
     @Body() createTeamDTO: RequestTeamDTO
   ): Promise<ResponseTeamDTO> {
@@ -46,6 +56,8 @@ export class TeamController {
     description: 'ID of an existing team',
     name: 'team_id'
   })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles([AccountRoles.JUDGE, AccountRoles.ADMIN, AccountRoles.ORGANIZER])
   async update(
     @Param('team_id') id: string,
     @Body() updateTeamDTO: RequestTeamDTO
@@ -61,6 +73,8 @@ export class TeamController {
     description: 'ID of an existing team',
     name: 'team_id'
   })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles([AccountRoles.JUDGE, AccountRoles.ADMIN, AccountRoles.ORGANIZER])
   async delete(
     @Param('team_id') id: string,
   ): Promise<void> {

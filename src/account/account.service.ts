@@ -5,6 +5,8 @@ import { Account } from './account.entity';
 import { RequestAccountDTO } from './request-account.dto';
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { AccountProducerService } from 'src/account-producer/account-producer.provider';
+import { SupabaseService } from 'src/auth/supabase.service';
+import { AccountRoles } from './role.enum';
 
 @Injectable()
 export class AccountService {
@@ -13,7 +15,8 @@ export class AccountService {
         private accountRepository: Repository<Account>,
         @InjectPinoLogger(AccountService.name)
         private readonly logger: PinoLogger,
-        private readonly accountProducer: AccountProducerService
+        private readonly accountProducer: AccountProducerService,
+        private readonly supabaseService: SupabaseService
     ) {}
 
     /**
@@ -52,10 +55,18 @@ export class AccountService {
      * @returns {Promise<Account>} Account Entity
      */
     async create(createAccountDTO: RequestAccountDTO) : Promise<Account> {
+        const { password, ...accountDTO } = createAccountDTO;
+
+        const accountFromAuth = await this.supabaseService
+        .getClient()
+        .auth.signUp({ email: accountDTO.email, password });
+
         const account: Account = await this.accountRepository.save({
-            ...createAccountDTO,
+            id: accountFromAuth.data.user.id,
+            ...accountDTO,
             createdAt: (new Date()).toISOString()
         });
+
         this.logger.info({ msg: 'Creating account', account });
         await this.accountProducer.addCreatedAccountToAccountQueue(account);
         return account;
@@ -79,8 +90,9 @@ export class AccountService {
         }
 
         account.email = updateAccountDTO.email;
-        account.password = updateAccountDTO.password;
-        account.roles = updateAccountDTO.roles;
+        account.roles = updateAccountDTO.roles,
+        account.firstName = updateAccountDTO.firstName;
+        account.lastName = updateAccountDTO.lastName;
 
         this.logger.info({ msg: 'Updating account', account });
 

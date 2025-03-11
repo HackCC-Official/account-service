@@ -68,3 +68,6 @@ jobs:
 
             docker compose pull
             docker compose up -d
+
+            cd ../spring2025
+            docker compose restart

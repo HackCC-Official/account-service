@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsDateString, IsOptional, IsString, IsUUID } from "class-validator";
-import { RequestAccountDTO } from "src/account/request-account.dto";
+import { ResponseAccountDTO } from "src/account/response-account.dto";
 
 export class ResponseTeamDTO {
   @IsUUID()
@@ -17,7 +17,7 @@ export class ResponseTeamDTO {
 
   @ApiProperty({
   })
-  accounts: RequestAccountDTO[];
+  accounts: ResponseAccountDTO[];
 
   @IsDateString()
   @ApiProperty({

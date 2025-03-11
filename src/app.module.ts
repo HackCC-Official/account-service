@@ -7,6 +7,7 @@ import { LoggerModule } from 'nestjs-pino';
 import { AccountProducerModule } from './account-producer/account-producer.module';
 import { TeamModule } from './team/team.module';
 import { Team } from './team/team.entity';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
     imports: [
@@ -20,7 +21,8 @@ import { Team } from './team/team.entity';
             },
           }),
         ConfigModule.forRoot({
-            envFilePath: ['.env', '.env.local']
+            envFilePath: ['.env', '.env.local'],
+            isGlobal: true
         }),
         TypeOrmModule.forRootAsync({
           imports: [ConfigModule],
@@ -32,13 +34,15 @@ import { Team } from './team/team.entity';
             password: configService.get<string>('DATABASE_PASSWORD'),
             database: configService.get<string>('DATABASE_DB'),
             entities: [Account, Team],
-            synchronize: true,
+            synchronize: false,
+            migrationsRun: false,
           }),
           inject: [ConfigService],
         }),
         AccountModule,
         AccountProducerModule,
-        TeamModule
+        TeamModule,
+        AuthModule
     ],
 })
 export class AppModule {}
