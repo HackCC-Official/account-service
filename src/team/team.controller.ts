@@ -72,7 +72,7 @@ export class TeamController {
   @ApiParam({
     description: 'ID of an existing team',
     name: 'team_id'
-  })
+  })  
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles([AccountRoles.JUDGE, AccountRoles.ADMIN, AccountRoles.ORGANIZER])
   async delete(

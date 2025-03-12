@@ -14,7 +14,16 @@ async function bootstrap() {
     .setTitle('Account Service')
     .setDescription('Account Service API Documentation')
     .setVersion('0.1')
-    .addTag('Account', 'Endpoints for Account API integrated with queue (ask Evan how to listen for user creaton/update/deletio )')
+    .addTag('Account', 'Endpoints for Account API integrated with queue (ask Evan how to listen for user creaton/update/deletion)')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        in: 'header',
+      },
+      'access-token',
+    )
     .build()
 
   const documentFactory = () => SwaggerModule.createDocument(app, config, { ignoreGlobalPrefix: false });
