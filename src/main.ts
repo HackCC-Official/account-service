@@ -10,6 +10,13 @@ async function bootstrap() {
 
   app.setGlobalPrefix(process.env.NODE_ENV === 'production' ? 'account-service' : '')
 
+  // Enable CORS for Swagger UI
+  app.enableCors({
+    origin: true,
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    credentials: true,
+  });
+
   const config = new DocumentBuilder()
     .setTitle('Account Service')
     .setDescription('Account Service API Documentation')
