@@ -88,6 +88,7 @@ export class AccountController {
     async createWithInviteLink(
         @Body() createAccountDTO: RequestAccountDTO
     ): Promise<ResponseAccountDTO> {
+        console.log(createAccountDTO)
         return await this.accountService.createAccountThroughInviteLink(createAccountDTO)
     }
 

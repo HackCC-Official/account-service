@@ -64,8 +64,8 @@ export class AccountService {
         .auth.signUp({ email: accountDTO.email, password });
 
         const account: Account = await this.accountRepository.save({
-            id: accountFromAuth.data.user.id,
             ...accountDTO,
+            id: accountFromAuth.data.user.id,
             createdAt: (new Date()).toISOString()
         });
 
@@ -85,10 +85,12 @@ export class AccountService {
             .auth
             .admin
             .inviteUserByEmail(createAccountDTO.email, { redirectTo: this.configService.get('ONBOARD_LINK') })
+        
+        console.log(accountFromAuth)
 
         const account: Account = await this.accountRepository.save({
-            id: accountFromAuth.data.user.id,
             ...createAccountDTO,
+            id: accountFromAuth.data.user.id,
             createdAt: (new Date()).toISOString()
         });
 
