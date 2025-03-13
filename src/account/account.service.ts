@@ -7,6 +7,7 @@ import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { AccountProducerService } from 'src/account-producer/account-producer.provider';
 import { SupabaseService } from 'src/auth/supabase.service';
 import { AccountRoles } from './role.enum';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AccountService {
@@ -16,7 +17,8 @@ export class AccountService {
         @InjectPinoLogger(AccountService.name)
         private readonly logger: PinoLogger,
         private readonly accountProducer: AccountProducerService,
-        private readonly supabaseService: SupabaseService
+        private readonly supabaseService: SupabaseService,
+        private readonly configService: ConfigService
     ) {}
 
     /**
@@ -82,7 +84,7 @@ export class AccountService {
             .getClient()
             .auth
             .admin
-            .inviteUserByEmail(createAccountDTO.email)
+            .inviteUserByEmail(createAccountDTO.email, { redirectTo: this.configService.get('ONBOARD_LINK') })
 
         const account: Account = await this.accountRepository.save({
             id: accountFromAuth.data.user.id,
