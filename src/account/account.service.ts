@@ -74,6 +74,29 @@ export class AccountService {
 
     /**
      * 
+     * @param {createAccountDto} Account Creation DTO
+     * @returns {Promise<Account>} Account Entity
+     */
+    async createAccountThroughInviteLink(createAccountDTO: RequestAccountDTO) : Promise<Account> {
+        const accountFromAuth = await this.supabaseService
+            .getClient()
+            .auth
+            .admin
+            .inviteUserByEmail(createAccountDTO.email)
+
+        const account: Account = await this.accountRepository.save({
+            id: accountFromAuth.data.user.id,
+            ...createAccountDTO,
+            createdAt: (new Date()).toISOString()
+        });
+
+        this.logger.info({ msg: 'Creating account with invite link', account });
+        await this.accountProducer.addCreatedAccountToAccountQueue(account);
+        return account;
+    }
+ 
+    /**
+     * 
      * @param {id} Account ID
      * @param {updateAccountDTO} Account Update DTO
      * @returns {Promise<Account>} Account Entity

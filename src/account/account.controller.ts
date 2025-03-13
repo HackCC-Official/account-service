@@ -79,6 +79,18 @@ export class AccountController {
         return await this.accountService.create(createAccountDTO);
     }
 
+    @Post('/invite-link')
+    @ApiOperation({
+        summary: 'Creates an Account using an invite link'
+    })
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles([AccountRoles.ADMIN, AccountRoles.ORGANIZER])
+    async createWithInviteLink(
+        @Body() createAccountDTO: RequestAccountDTO
+    ): Promise<ResponseAccountDTO> {
+        return await this.accountService.createAccountThroughInviteLink(createAccountDTO)
+    }
+
     @Put(':account_id')
     @ApiOperation({
         summary: 'Updates an existing Account AND sends a message to all queues that listen for account update'
