@@ -85,8 +85,6 @@ export class AccountService {
             .auth
             .admin
             .inviteUserByEmail(createAccountDTO.email, { redirectTo: this.configService.get('ONBOARD_LINK') })
-        
-        console.log(accountFromAuth)
 
         const account: Account = await this.accountRepository.save({
             ...createAccountDTO,
@@ -98,6 +96,7 @@ export class AccountService {
         await this.accountProducer.addCreatedAccountToAccountQueue(account);
         return account;
     }
+
  
     /**
      * 
@@ -134,7 +133,8 @@ export class AccountService {
         this.logger.info({ msg: 'Deleting account with id:' + id  });
         const account: Account = await this.getByIdOrFail(id);
 
-        this.accountRepository.softDelete(id);
+        this.accountRepository.delete(id);
+        this.supabaseService.getClient().auth.admin.deleteUser(id)
         this.accountProducer.addDeletedAccountToAccountQueue(account)
     }
 }
