@@ -71,8 +71,6 @@ export class AccountController {
     @ApiOperation({
         summary: 'Creates an Account for a hacker/organizer/judge/etc AND sends a message to all queues that listen for account creation'
     })
-    @UseGuards(JwtAuthGuard, RolesGuard)
-    @Roles([AccountRoles.ADMIN, AccountRoles.ORGANIZER])
     async create(
         @Body() createAccountDTO: RequestAccountDTO
     ): Promise<ResponseAccountDTO> {
