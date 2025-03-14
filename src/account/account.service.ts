@@ -63,11 +63,11 @@ export class AccountService {
         .getClient()
         .auth.signUp({ email: accountDTO.email, password });
 
-        console.log(accountFromAuth)
-
         const account: Account = await this.accountRepository.save({
-            ...accountDTO,
             id: accountFromAuth.data.user.id,
+            firstName: createAccountDTO.firstName,
+            lastName: createAccountDTO.lastName,
+            roles: [AccountRoles.USER],
             createdAt: (new Date()).toISOString()
         });
 
