@@ -8,8 +8,9 @@ import { Transform } from 'class-transformer';
 import { JwtAuthGuard } from 'src/auth/jwt.auth.guard';
 import { Roles } from 'src/auth/roles.decorator';
 import { AccountRoles } from './role.enum';
-import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from 'src/auth/roles.guard';
+import { AuthRequest } from 'src/auth/auth-request';
+import { containsRole } from 'src/auth/utils';
 
 class AccountQueryParamDTO {
     @IsOptional()
@@ -99,11 +100,21 @@ export class AccountController {
         name: 'account_id'
     })
     @UseGuards(JwtAuthGuard, RolesGuard)
-    @Roles([AccountRoles.JUDGE, AccountRoles.ADMIN, AccountRoles.ORGANIZER])
+    @Roles([AccountRoles.USER, AccountRoles.JUDGE, AccountRoles.ADMIN, AccountRoles.ORGANIZER])
     async update(
         @Param('account_id') id: string,
-        @Body() updateAccountDTO: RequestAccountDTO
+        @Body() updateAccountDTO: RequestAccountDTO,
+        @Req() req: AuthRequest
     ): Promise<ResponseAccountDTO> {
+        const user = req.user;
+
+        const hasPermission = containsRole(user.user_roles, [AccountRoles.ADMIN, AccountRoles.ORGANIZER]);
+        const isTheSameUser = id === user.sub;
+
+        console.log(hasPermission, isTheSameUser)
+        if (!isTheSameUser && !hasPermission) {
+            throw new Error('no');
+        }
         return await this.accountService.update(id, updateAccountDTO);
     }
 
