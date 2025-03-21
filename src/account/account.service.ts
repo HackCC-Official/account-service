@@ -23,6 +23,18 @@ export class AccountService {
 
     /**
      * 
+     * @param {string} string
+     * @returns {string} string with the first letter capitalized
+     */
+    capitalizeFirstLetter(text: string = ''): string {
+        if (!text) {
+            return text; // Return empty string if input is empty
+          }
+          return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
+      }
+
+    /**
+     * 
      * @returns {Promise<Account[]>} Accounts Array
      * 
      * Consideration: Querying feature
@@ -91,6 +103,8 @@ export class AccountService {
         const account: Account = await this.accountRepository.save({
             ...createAccountDTO,
             id: accountFromAuth.data.user.id,
+            firstName: this.capitalizeFirstLetter(createAccountDTO.firstName),
+            lastName: this.capitalizeFirstLetter(createAccountDTO.lastName),
             createdAt: (new Date()).toISOString()
         });
 
@@ -119,8 +133,8 @@ export class AccountService {
 
         account.email = updateAccountDTO.email;
         account.roles = updateAccountDTO.roles,
-        account.firstName = updateAccountDTO.firstName;
-        account.lastName = updateAccountDTO.lastName;
+        account.firstName = this.capitalizeFirstLetter(updateAccountDTO.firstName);
+        account.lastName = this.capitalizeFirstLetter(updateAccountDTO.lastName);
 
         this.logger.info({ msg: 'Updating account', account });
 
