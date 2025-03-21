@@ -63,8 +63,16 @@ export class AccountController {
         name: 'account_id'
     })
     @UseGuards(JwtAuthGuard, RolesGuard)
-    @Roles([AccountRoles.JUDGE, AccountRoles.ADMIN, AccountRoles.ORGANIZER])
-    async find(@Param('account_id') id: string): Promise<ResponseAccountDTO> {
+    @Roles([AccountRoles.USER, AccountRoles.JUDGE, AccountRoles.ADMIN, AccountRoles.ORGANIZER])
+    async find(@Param('account_id') id: string, @Req() req: AuthRequest): Promise<ResponseAccountDTO> {
+        const user = req.user;
+
+        const hasPermission = containsRole(user.user_roles, [AccountRoles.ADMIN, AccountRoles.ORGANIZER]);
+        const isTheSameUser = id === user.sub;
+        
+        if (!isTheSameUser && !hasPermission) {
+            throw new Error('no');
+        }
         return await this.accountService.getByIdOrFail(id);
     }
 
@@ -111,7 +119,6 @@ export class AccountController {
         const hasPermission = containsRole(user.user_roles, [AccountRoles.ADMIN, AccountRoles.ORGANIZER]);
         const isTheSameUser = id === user.sub;
 
-        console.log(hasPermission, isTheSameUser)
         if (!isTheSameUser && !hasPermission) {
             throw new Error('no');
         }
