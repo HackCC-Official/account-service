@@ -77,6 +77,7 @@ export class AccountService {
 
         const account: Account = await this.accountRepository.save({
             id: accountFromAuth.data.user.id,
+            email: createAccountDTO.email,
             firstName: createAccountDTO.firstName,
             lastName: createAccountDTO.lastName,
             roles: [AccountRoles.USER],
