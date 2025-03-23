@@ -7,6 +7,7 @@ import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { AccountProducerService } from 'src/account-producer/account-producer.provider';
 import { SupabaseService } from 'src/auth/supabase.service';
 import { AccountRoles } from './role.enum';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AccountService {
@@ -16,8 +17,21 @@ export class AccountService {
         @InjectPinoLogger(AccountService.name)
         private readonly logger: PinoLogger,
         private readonly accountProducer: AccountProducerService,
-        private readonly supabaseService: SupabaseService
+        private readonly supabaseService: SupabaseService,
+        private readonly configService: ConfigService
     ) {}
+
+    /**
+     * 
+     * @param {string} string
+     * @returns {string} string with the first letter capitalized
+     */
+    capitalizeFirstLetter(text: string = ''): string {
+        if (!text) {
+            return text; // Return empty string if input is empty
+          }
+          return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
+      }
 
     /**
      * 
@@ -63,7 +77,10 @@ export class AccountService {
 
         const account: Account = await this.accountRepository.save({
             id: accountFromAuth.data.user.id,
-            ...accountDTO,
+            email: createAccountDTO.email,
+            firstName: createAccountDTO.firstName,
+            lastName: createAccountDTO.lastName,
+            roles: [AccountRoles.USER],
             createdAt: (new Date()).toISOString()
         });
 
@@ -72,6 +89,32 @@ export class AccountService {
         return account;
     }
 
+    /**
+     * 
+     * @param {createAccountDto} Account Creation DTO
+     * @returns {Promise<Account>} Account Entity
+     */
+    async createAccountThroughInviteLink(createAccountDTO: RequestAccountDTO) : Promise<Account> {
+        const accountFromAuth = await this.supabaseService
+            .getClient()
+            .auth
+            .admin
+            .inviteUserByEmail(createAccountDTO.email, { redirectTo: this.configService.get('ONBOARD_LINK') })
+
+        const account: Account = await this.accountRepository.save({
+            ...createAccountDTO,
+            id: accountFromAuth.data.user.id,
+            firstName: this.capitalizeFirstLetter(createAccountDTO.firstName),
+            lastName: this.capitalizeFirstLetter(createAccountDTO.lastName),
+            createdAt: (new Date()).toISOString()
+        });
+
+        this.logger.info({ msg: 'Creating account with invite link', account });
+        await this.accountProducer.addCreatedAccountToAccountQueue(account);
+        return account;
+    }
+
+ 
     /**
      * 
      * @param {id} Account ID
@@ -91,8 +134,8 @@ export class AccountService {
 
         account.email = updateAccountDTO.email;
         account.roles = updateAccountDTO.roles,
-        account.firstName = updateAccountDTO.firstName;
-        account.lastName = updateAccountDTO.lastName;
+        account.firstName = this.capitalizeFirstLetter(updateAccountDTO.firstName);
+        account.lastName = this.capitalizeFirstLetter(updateAccountDTO.lastName);
 
         this.logger.info({ msg: 'Updating account', account });
 
@@ -107,7 +150,8 @@ export class AccountService {
         this.logger.info({ msg: 'Deleting account with id:' + id  });
         const account: Account = await this.getByIdOrFail(id);
 
-        this.accountRepository.softDelete(id);
+        this.accountRepository.delete(id);
+        this.supabaseService.getClient().auth.admin.deleteUser(id)
         this.accountProducer.addDeletedAccountToAccountQueue(account)
     }
 }

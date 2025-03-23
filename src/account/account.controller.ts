@@ -8,8 +8,9 @@ import { Transform } from 'class-transformer';
 import { JwtAuthGuard } from 'src/auth/jwt.auth.guard';
 import { Roles } from 'src/auth/roles.decorator';
 import { AccountRoles } from './role.enum';
-import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from 'src/auth/roles.guard';
+import { AuthRequest } from 'src/auth/auth-request';
+import { containsRole } from 'src/auth/utils';
 
 class AccountQueryParamDTO {
     @IsOptional()
@@ -62,8 +63,16 @@ export class AccountController {
         name: 'account_id'
     })
     @UseGuards(JwtAuthGuard, RolesGuard)
-    @Roles([AccountRoles.JUDGE, AccountRoles.ADMIN, AccountRoles.ORGANIZER])
-    async find(@Param('account_id') id: string): Promise<ResponseAccountDTO> {
+    @Roles([AccountRoles.USER, AccountRoles.JUDGE, AccountRoles.ADMIN, AccountRoles.ORGANIZER])
+    async find(@Param('account_id') id: string, @Req() req: AuthRequest): Promise<ResponseAccountDTO> {
+        const user = req.user;
+
+        const hasPermission = containsRole(user.user_roles, [AccountRoles.ADMIN, AccountRoles.ORGANIZER]);
+        const isTheSameUser = id === user.sub;
+        
+        if (!isTheSameUser && !hasPermission) {
+            throw new Error('no');
+        }
         return await this.accountService.getByIdOrFail(id);
     }
 
@@ -71,12 +80,23 @@ export class AccountController {
     @ApiOperation({
         summary: 'Creates an Account for a hacker/organizer/judge/etc AND sends a message to all queues that listen for account creation'
     })
-    @UseGuards(JwtAuthGuard, RolesGuard)
-    @Roles([AccountRoles.ADMIN, AccountRoles.ORGANIZER])
     async create(
         @Body() createAccountDTO: RequestAccountDTO
     ): Promise<ResponseAccountDTO> {
         return await this.accountService.create(createAccountDTO);
+    }
+
+    @Post('/invite-link')
+    @ApiOperation({
+        summary: 'Creates an Account using an invite link'
+    })
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles([AccountRoles.ADMIN, AccountRoles.ORGANIZER])
+    async createWithInviteLink(
+        @Body() createAccountDTO: RequestAccountDTO
+    ): Promise<ResponseAccountDTO> {
+        console.log(createAccountDTO)
+        return await this.accountService.createAccountThroughInviteLink(createAccountDTO)
     }
 
     @Put(':account_id')
@@ -88,11 +108,20 @@ export class AccountController {
         name: 'account_id'
     })
     @UseGuards(JwtAuthGuard, RolesGuard)
-    @Roles([AccountRoles.JUDGE, AccountRoles.ADMIN, AccountRoles.ORGANIZER])
+    @Roles([AccountRoles.USER, AccountRoles.JUDGE, AccountRoles.ADMIN, AccountRoles.ORGANIZER])
     async update(
         @Param('account_id') id: string,
-        @Body() updateAccountDTO: RequestAccountDTO
+        @Body() updateAccountDTO: RequestAccountDTO,
+        @Req() req: AuthRequest
     ): Promise<ResponseAccountDTO> {
+        const user = req.user;
+
+        const hasPermission = containsRole(user.user_roles, [AccountRoles.ADMIN, AccountRoles.ORGANIZER]);
+        const isTheSameUser = id === user.sub;
+
+        if (!isTheSameUser && !hasPermission) {
+            throw new Error('no');
+        }
         return await this.accountService.update(id, updateAccountDTO);
     }
 
