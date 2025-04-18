@@ -58,7 +58,12 @@ export class AccountService {
      * @returns {Promise<Acount>} Account Entity
      */
     async getByIdOrFail(id : string) : Promise<Account> {
-        return this.accountRepository.findOneByOrFail({ id });
+        return this.accountRepository.findOneOrFail({
+            where: { id },
+            relations: {
+              team: true,
+            },
+          });
     }
 
     /**

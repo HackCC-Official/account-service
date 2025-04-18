@@ -48,10 +48,11 @@ export class TeamService {
     const accounts: Account[] = [];
 
     for (const account_id of createTeamDTO.account_ids) {
-      console.log(account_id)
       const account = await this.accountService.getByIdOrFail(account_id)
-      console.log(account)
-      accounts.push(account)
+      if (account.team) {
+        this.logger.info({ msg: 'Account already got team', account})
+        throw new Error('Account with id ' + account.id + ' and email ' + account.email + ' already got a team');
+      }
     }
 
     console.log(accounts)
