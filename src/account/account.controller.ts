@@ -11,8 +11,9 @@ import { AccountRoles } from './role.enum';
 import { RolesGuard } from 'src/auth/roles.guard';
 import { AuthRequest } from 'src/auth/auth-request';
 import { containsRole } from 'src/auth/utils';
+import { APIQuery } from 'src/types/api-query';
 
-class AccountQueryParamDTO {
+class AccountQueryParamDTO extends APIQuery {
     @IsOptional()
     @IsArray()
     @IsString({ each: true })
@@ -51,7 +52,7 @@ export class AccountController {
         if (query.account_ids) {
             return await this.accountService.getByIds(query.account_ids);
         }
-        return await this.accountService.getAll();
+        return await this.accountService.getAll(query.q);
     }
 
     @Get(':account_id')

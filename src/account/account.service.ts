@@ -39,7 +39,16 @@ export class AccountService {
      * 
      * Consideration: Querying feature
      */
-    async getAll() : Promise<Account[]> {
+    async getAll(q?: string) : Promise<Account[]> {
+        if (q) {
+            return this.accountRepository
+                .createQueryBuilder('account')
+                .where('LOWER(account.email) LIKE LOWER(:query)', { query: `%${q}%` })
+                .orWhere("LOWER(CONCAT(account.firstName, ' ', account.lastName)) LIKE LOWER(:query)", {
+                    query: `%${q}%`,
+                })
+                .getMany();
+        }
         return this.accountRepository.find();
     }
 
