@@ -36,7 +36,10 @@ export class TeamService {
    * @returns {Promise<Team>} Team Entity
    */
   async getByIdOrFail(id: string): Promise<Team> {
-    return this.teamRepository.findOneByOrFail({ id })
+    return this.teamRepository.findOneOrFail({
+      where: { id },
+      relations: { accounts: true }
+    })
   }
 
   /**
@@ -54,8 +57,6 @@ export class TeamService {
         throw new Error('Account with id ' + account.id + ' and email ' + account.email + ' already got a team');
       }
     }
-
-    console.log(accounts)
 
     const team = await this.teamRepository.save({
       name: createTeamDTO.name,
