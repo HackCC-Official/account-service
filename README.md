@@ -1,8 +1,8 @@
-# HackCC 2025's Account API
+# HackCC 2025's Account Service
 
 ## Overview
 
-The main Account API for services to use in HackCC.
+The main Account Service API for services to use in HackCC.
 
 
 The application service also helps with
@@ -29,12 +29,12 @@ Please use the following extension in order to comply to the project's stand
 ### Installation
 At the location of where you want to place this project at, clone the repository using the command below
 ```bash
-git clone https://github.com/jellyfishsh/AccountAPI.git
+git clone git@github.com:HackCC-Official/account-service.git
 ```
 
 Then enter directory and install the dependencies
 ```bash
-cd AccountAPI
+cd account-service
 npm install
 ```
 
@@ -60,7 +60,7 @@ RABBITMQ_PASSWORD=
 ## Running the application locally (the L version)
 to run the application locally without the usage of any docker toolings
 ```bash
-cd AccountAPI
+cd account-service
 npm run start:dev
 ```
 
