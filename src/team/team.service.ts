@@ -79,19 +79,35 @@ export class TeamService {
     // get team
     const team = await this.getByIdOrFail(id);
 
-    const accounts: Account[] = [];
+    const newAccounts: Account[] = [];
 
     for (const account_id of updateTeamDTO.account_ids) {
       const account = await this.accountService.getByIdOrFail(account_id)
-      accounts.push(account)
+      newAccounts.push(account)
     }
-    
-    team.name = updateTeamDTO.name;
-    team.accounts = accounts;
 
-    this.logger.info({ msg: 'Updating team', team });
+    // 2. Remove accounts no longer in the team (optional)
+  const oldAccounts = team.accounts || [];
+  for (const oldAccount of oldAccounts) {
+    if (!newAccounts.some(a => a.id === oldAccount.id)) {
+      oldAccount.team = null; // Or assign to another team
+      await this.accountService.update(oldAccount.id, oldAccount); // Ensure this updates the DB
+    }
+  }
 
-    return this.teamRepository.save(team)
+  // 3. Assign new accounts to this team
+  for (const newAccount of newAccounts) {
+    newAccount.team = team; // Sync the inverse side!
+    await this.accountService.update(newAccount.id, newAccount); // Save changes
+  }
+
+  
+  team.name = updateTeamDTO.name;
+  team.accounts = newAccounts;
+
+  this.logger.info({ msg: 'Updating team', team });
+
+  return this.teamRepository.save(team)
   }
 
   async delete(id: string): Promise<void> {
