@@ -35,8 +35,6 @@ async function bootstrap() {
 
   const documentFactory = () => SwaggerModule.createDocument(app, config, { ignoreGlobalPrefix: false });
 
-  console.log(process.env.NODE_ENV)
-
   SwaggerModule.setup(
     process.env.NODE_ENV === 'production' ? 'account-service/docs' : 'docs', 
     app, 
