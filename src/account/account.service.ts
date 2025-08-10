@@ -87,9 +87,15 @@ export class AccountService {
 
         const accountFromAuth = await this.supabaseService
         .getClient()
-        .auth.signUp({ email: accountDTO.email, password });
-
-        console.log(accountFromAuth)
+        .auth
+        .signUp({ 
+            email: accountDTO.email, 
+            password, 
+            options: { 
+                emailRedirectTo: createAccountDTO.redirectTo
+            } 
+        })
+        
 
         const account: Account = await this.accountRepository.save({
             id: accountFromAuth.data.user.id,
