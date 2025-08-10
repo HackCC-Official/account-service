@@ -84,7 +84,6 @@ export class AccountService {
      */
     async create(createAccountDTO: RequestAccountDTO) : Promise<Account> {
         const { password, ...accountDTO } = createAccountDTO;
-
         const accountFromAuth = await this.supabaseService
         .getClient()
         .auth
@@ -92,7 +91,7 @@ export class AccountService {
             email: accountDTO.email, 
             password, 
             options: { 
-                emailRedirectTo: createAccountDTO.redirectTo
+                emailRedirectTo: this.configService.get('SITE_URL') + createAccountDTO.redirectTo,
             } 
         })
         
@@ -121,7 +120,7 @@ export class AccountService {
             .getClient()
             .auth
             .admin
-            .inviteUserByEmail(createAccountDTO.email, { redirectTo: this.configService.get('ONBOARD_LINK') })
+            .inviteUserByEmail(createAccountDTO.email, { redirectTo: this.configService.get('SITE_URL') + '/onboard' })
 
         const account: Account = await this.accountRepository.save({
             ...createAccountDTO,
