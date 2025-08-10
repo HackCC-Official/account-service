@@ -101,7 +101,7 @@ export class AccountService {
         });
 
         this.logger.info({ msg: 'Creating account', account });
-        await this.accountProducer.addCreatedAccountToAccountQueue(account);
+        // await this.accountProducer.addCreatedAccountToAccountQueue(account);
         return account;
     }
 
@@ -126,7 +126,7 @@ export class AccountService {
         });
 
         this.logger.info({ msg: 'Creating account with invite link', account });
-        await this.accountProducer.addCreatedAccountToAccountQueue(account);
+        // await this.accountProducer.addCreatedAccountToAccountQueue(account);
         return account;
     }
 
