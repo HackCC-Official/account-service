@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOptionsWhere, In, InsertResult, Repository, UpdateResult } from 'typeorm';
+import { ArrayContains, FindOptionsWhere, In, InsertResult, Repository, UpdateResult } from 'typeorm';
 import { Account } from './account.entity';
 import { RequestAccountDTO } from './request-account.dto';
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
@@ -50,6 +50,21 @@ export class AccountService {
                 .getMany();
         }
         return this.accountRepository.find();
+    }
+
+
+    /**
+     * 
+     * @returns {Promise<Account[]>} Accounts Array
+     * 
+     * Consideration: Querying feature
+     */
+    async getByRole(accountRole: AccountRoles) : Promise<Account[]> {
+        return this.accountRepository.find({
+            where: {
+                roles: ArrayContains([accountRole])
+            }
+        })
     }
 
     /**
