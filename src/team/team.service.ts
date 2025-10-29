@@ -55,8 +55,12 @@ export class TeamService {
       if (account.team) {
         this.logger.info({ msg: 'Account already got team', account})
         throw new Error('Account with id ' + account.id + ' and email ' + account.email + ' already got a team');
+      } else {
+        accounts.push(account)
       }
     }
+
+    console.log(accounts)
 
     const team = await this.teamRepository.save({
       name: createTeamDTO.name,
