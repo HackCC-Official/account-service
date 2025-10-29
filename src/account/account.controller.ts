@@ -35,6 +35,16 @@ export class AccountController {
       };
     }
 
+    @Get('/judges')
+    @ApiOperation({
+        summary: 'Finds all Judges As'
+    })
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles([AccountRoles.JUDGE, AccountRoles.ADMIN, AccountRoles.ORGANIZER])
+    async findAllJudges(): Promise<ResponseAccountDTO[]> {
+        return await this.accountService.getByRole(AccountRoles.JUDGE)
+    }
+
     @Get()
     @ApiOperation({
         summary: 'Finds all Accounts'
