@@ -24,7 +24,7 @@ class AccountQueryParamDTO extends APIQuery {
 @Controller('accounts')
 export class AccountController {
     constructor(private accountService: AccountService) {};
-
+    
     @Get('/protected')
     @UseGuards(JwtAuthGuard, RolesGuard)
     @Roles([AccountRoles.USER])

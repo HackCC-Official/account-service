@@ -7,8 +7,9 @@ import { AccountModule } from "src/account/account.module";
 import { AuthModule } from "src/auth/auth.module";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([ Team ]), AccountModule, AuthModule],
-  providers: [TeamService],
-  controllers: [TeamController]
+    imports: [TypeOrmModule.forFeature([ Team ]), AccountModule, AuthModule],
+    providers: [TeamService],
+    controllers: [TeamController],
+    exports: [TeamService]
 })
 export class TeamModule {}
