@@ -34,8 +34,8 @@ export class TeamService {
    * 
    * @returns {Promise<Team>} Teams Array
    */
-  async getByAccountId(account_id: string): Promise<Team[]> {
-    return this.teamRepository.find({
+  async getByAccountId(account_id: string): Promise<Team> {
+    return this.teamRepository.findOne({
       where: {
         accounts: {
           id: account_id

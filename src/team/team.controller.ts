@@ -32,7 +32,7 @@ export class TeamController {
   async findTeamByAccountId(
     @Param('account_id') account_id: string,
     @Req() request: AuthRequest
-  ): Promise<ResponseTeamDTO[]> {
+  ): Promise<ResponseTeamDTO> {
     if (request.user.sub !== account_id) {
       throw new Error(`You don't have enough permissions`)
     }
