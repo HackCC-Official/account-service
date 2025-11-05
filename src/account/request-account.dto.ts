@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsArray, IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString } from "class-validator"
+import { IsArray, IsBoolean, IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString } from "class-validator"
 import { AccountRoles } from "./role.enum";
 
 export class RequestAccountDTO {
@@ -42,4 +42,10 @@ export class RequestAccountDTO {
         type: String
     })
     redirectTo: string;
+
+    @IsBoolean()
+    @ApiProperty({
+    example: "false"
+    })
+    isJudging: boolean;
 }

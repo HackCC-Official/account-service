@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsArray, IsDateString, IsEmail, IsEnum, IsNotEmpty, IsString, IsUUID } from "class-validator"
+import { IsArray, IsBoolean, IsDateString, IsEmail, IsEnum, IsNotEmpty, IsString, IsUUID } from "class-validator"
 import { AccountRoles } from "./role.enum";
 
 export class ResponseAccountDTO {
@@ -40,4 +40,9 @@ export class ResponseAccountDTO {
     example: "2025-01-30T07:03:08.307Z"
   })
   createdAt: string;
+  @IsBoolean()
+  @ApiProperty({
+    example: "false"
+  })
+  isJudging: boolean;
 }

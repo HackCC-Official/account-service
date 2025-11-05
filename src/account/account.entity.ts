@@ -29,4 +29,7 @@ export class Account {
 
     @ManyToOne(() => Team, (team) => team.accounts, { nullable: true, onDelete: "SET NULL" })
     team: Team;
+
+    @Column()
+    isJudging: boolean;
 }
