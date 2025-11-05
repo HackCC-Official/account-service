@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post, Put, Req, UseGuards } from "@nestjs/common";
 import { TeamService } from "./team.service";
 import { ApiOperation, ApiParam } from "@nestjs/swagger";
 import { ResponseTeamDTO } from "./response-team.dto";
@@ -7,6 +7,7 @@ import { JwtAuthGuard } from "src/auth/jwt.auth.guard";
 import { RolesGuard } from "src/auth/roles.guard";
 import { AccountRoles } from "src/account/role.enum";
 import { Roles } from "src/auth/roles.decorator";
+import { AuthRequest } from "src/auth/auth-request";
 
 @Controller('teams')
 export class TeamController {
@@ -21,6 +22,23 @@ export class TeamController {
   async findAll(): Promise<ResponseTeamDTO[]> {
     return await this.teamService.getAll()
   }
+
+  @Get('account/:account_id')
+  @ApiOperation({
+    summary: 'Find a team associated with the account_id'
+  })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles([AccountRoles.USER, AccountRoles.JUDGE, AccountRoles.ADMIN, AccountRoles.ORGANIZER])
+  async findTeamByAccountId(
+    @Param('account_id') account_id: string,
+    @Req() request: AuthRequest
+  ): Promise<ResponseTeamDTO[]> {
+    if (request.user.sub !== account_id) {
+      throw new Error(`You don't have enough permissions`)
+    }
+    return await this.teamService.getByAccountId(account_id)
+  }
+
 
   @Get(':team_id')
   @ApiOperation({
@@ -43,8 +61,14 @@ export class TeamController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles([AccountRoles.JUDGE, AccountRoles.ADMIN, AccountRoles.ORGANIZER])
   async create(
-    @Body() createTeamDTO: RequestTeamDTO
+    @Body() createTeamDTO: RequestTeamDTO,
+    @Req() request: AuthRequest
   ): Promise<ResponseTeamDTO> {
+    const user = request.user
+    if (!user.user_roles.includes(AccountRoles.ADMIN)) {
+      createTeamDTO.account_ids = [user.sub]
+      return await this.teamService.create(createTeamDTO);
+    }
     return await this.teamService.create(createTeamDTO);
   }
 

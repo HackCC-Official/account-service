@@ -30,6 +30,23 @@ export class TeamService {
     });
   }
 
+    /**
+   * 
+   * @returns {Promise<Team>} Teams Array
+   */
+  async getByAccountId(account_id: string): Promise<Team[]> {
+    return this.teamRepository.find({
+      where: {
+        accounts: {
+          id: account_id
+        }
+      },
+      relations: {
+        accounts: true
+      }
+    });
+  }
+
   /**
    * 
    * @param {id} Team ID 
@@ -47,7 +64,7 @@ export class TeamService {
    * @param {createTeamDTO} Account Creation DTO 
    * @returns {Promise<Team>} Team Entity
    */
-  async create(createTeamDTO: RequestTeamDTO): Promise<Team> {
+  async createWithAdmin(createTeamDTO: RequestTeamDTO): Promise<Team> {
     const accounts: Account[] = [];
 
     for (const account_id of createTeamDTO.account_ids) {
@@ -60,7 +77,27 @@ export class TeamService {
       }
     }
 
-    console.log(accounts)
+    const team = await this.teamRepository.save({
+      name: createTeamDTO.name,
+      createdAt: (new Date()).toISOString(),
+      accounts
+    })
+
+    this.logger.info({ msg: 'Creating team', team });
+
+    return team
+  }
+
+    /**
+   * 
+   * @param {createTeamDTO} Account Creation DTO 
+   * @returns {Promise<Team>} Team Entity
+   */
+  async create(createTeamDTO: RequestTeamDTO): Promise<Team> {
+    const accounts: Account[] = [];
+
+    const account = await this.accountService.getByIdOrFail(createTeamDTO[0])
+    accounts.push(account)
 
     const team = await this.teamRepository.save({
       name: createTeamDTO.name,
