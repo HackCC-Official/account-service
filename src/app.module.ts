@@ -8,6 +8,8 @@ import { AccountProducerModule } from './account-producer/account-producer.modul
 import { TeamModule } from './team/team.module';
 import { Team } from './team/team.entity';
 import { AuthModule } from './auth/auth.module';
+import { NotificationModule } from './notification/notification.module';
+import { Notification } from './notification/notification.entity';
 
 @Module({
     imports: [
@@ -33,7 +35,7 @@ import { AuthModule } from './auth/auth.module';
             username: configService.get<string>('DATABASE_USERNAME'),
             password: configService.get<string>('DATABASE_PASSWORD'),
             database: configService.get<string>('DATABASE_DB'),
-            entities: [Account, Team],
+            entities: [Account, Team, Notification],
             synchronize: false,
             migrationsRun: false,
           }),
@@ -42,7 +44,8 @@ import { AuthModule } from './auth/auth.module';
         AccountModule,
         AccountProducerModule,
         TeamModule,
-        AuthModule
+        AuthModule,
+        NotificationModule
     ],
 })
 export class AppModule {}
