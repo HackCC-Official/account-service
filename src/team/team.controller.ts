@@ -7,7 +7,7 @@ import { JwtAuthGuard } from "src/auth/jwt.auth.guard";
 import { RolesGuard } from "src/auth/roles.guard";
 import { AccountRoles } from "src/account/role.enum";
 import { Roles } from "src/auth/roles.decorator";
-import { AuthRequest } from "src/auth/auth-request";
+import { AuthRequest, HackCCUser } from "src/auth/auth-request";
 
 @Controller('teams')
 export class TeamController {
@@ -33,9 +33,6 @@ export class TeamController {
     @Param('account_id') account_id: string,
     @Req() request: AuthRequest
   ): Promise<ResponseTeamDTO> {
-    if (request.user.sub !== account_id) {
-      throw new Error(`You don't have enough permissions`)
-    }
     return await this.teamService.getByAccountId(account_id)
   }
 
@@ -59,7 +56,7 @@ export class TeamController {
     summary: 'Creates a Team of hackers at the hackathon'
   })
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles([AccountRoles.JUDGE, AccountRoles.ADMIN, AccountRoles.ORGANIZER])
+  @Roles([AccountRoles.USER, AccountRoles.JUDGE, AccountRoles.ADMIN, AccountRoles.ORGANIZER])
   async create(
     @Body() createTeamDTO: RequestTeamDTO,
     @Req() request: AuthRequest
@@ -69,7 +66,7 @@ export class TeamController {
       createTeamDTO.account_ids = [user.sub]
       return await this.teamService.create(createTeamDTO);
     }
-    return await this.teamService.create(createTeamDTO);
+    return await this.teamService.createWithAdmin(createTeamDTO);
   }
 
   @Put(':team_id')
@@ -98,10 +95,27 @@ export class TeamController {
     name: 'team_id'
   })  
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles([AccountRoles.JUDGE, AccountRoles.ADMIN, AccountRoles.ORGANIZER])
+  @Roles([AccountRoles.USER, AccountRoles.JUDGE, AccountRoles.ADMIN, AccountRoles.ORGANIZER])
   async delete(
     @Param('team_id') id: string,
+    @Req() request: AuthRequest
   ): Promise<void> {
+    const account_id = request.user.sub
+    const team = await this.teamService.getByIdOrFail(id);
+
+    if (!team.accounts.find(a => a.id === account_id) && !this.isOrganizer(request.user)) {
+      throw new Error(`You don't have enough permissions`)
+    }
+
+    if (team.accounts.length > 1) {
+      throw new Error('There must be only one person on team.')
+    }
+    
     await this.teamService.delete(id);
+  }
+  
+  isOrganizer(user: HackCCUser) {
+    return user.user_roles.find(r => 
+      [AccountRoles.ADMIN, AccountRoles.ORGANIZER, AccountRoles.JUDGE].includes(r))
   }
 }

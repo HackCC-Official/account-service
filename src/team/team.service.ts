@@ -35,16 +35,13 @@ export class TeamService {
    * @returns {Promise<Team>} Teams Array
    */
   async getByAccountId(account_id: string): Promise<Team> {
-    return this.teamRepository.findOne({
-      where: {
-        accounts: {
-          id: account_id
-        }
-      },
-      relations: {
-        accounts: true
-      }
-    });
+    const team = await this.teamRepository.createQueryBuilder("team")
+        .select("team") 
+        .leftJoinAndSelect("team.accounts", "account") 
+        .innerJoin("team.accounts", "filterAccount", "filterAccount.id = :accountId", { accountId: account_id })
+        .getOne();
+
+    return team;
   }
 
   /**
@@ -96,7 +93,7 @@ export class TeamService {
   async create(createTeamDTO: RequestTeamDTO): Promise<Team> {
     const accounts: Account[] = [];
 
-    const account = await this.accountService.getByIdOrFail(createTeamDTO[0])
+    const account = await this.accountService.getByIdOrFail(createTeamDTO.account_ids[0])
     accounts.push(account)
 
     const team = await this.teamRepository.save({

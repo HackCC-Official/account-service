@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Delete, Param, Req, Body, Query, ValidationPipe, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Param, Req, Body, Query, ValidationPipe, UseGuards, ForbiddenException } from '@nestjs/common';
 import { AccountService } from './account.service';
 import { RequestAccountDTO } from './request-account.dto';
 import { ResponseAccountDTO } from './response-account.dto';
@@ -9,9 +9,10 @@ import { JwtAuthGuard } from 'src/auth/jwt.auth.guard';
 import { Roles } from 'src/auth/roles.decorator';
 import { AccountRoles } from './role.enum';
 import { RolesGuard } from 'src/auth/roles.guard';
-import { AuthRequest } from 'src/auth/auth-request';
+import { AuthRequest, HackCCUser } from 'src/auth/auth-request';
 import { containsRole } from 'src/auth/utils';
 import { APIQuery } from 'src/types/api-query';
+import { AuthUser } from '@supabase/supabase-js';
 
 class AccountQueryParamDTO extends APIQuery {
     @IsOptional()
@@ -55,12 +56,17 @@ export class AccountController {
         description: 'Given a list of account_ids, it will batch fetch the accounts'
     })
     @UseGuards(JwtAuthGuard, RolesGuard)
-    @Roles([AccountRoles.JUDGE, AccountRoles.ADMIN, AccountRoles.ORGANIZER])
+    @Roles([AccountRoles.USER, AccountRoles.JUDGE, AccountRoles.ADMIN, AccountRoles.ORGANIZER])
     async findAll(
-        @Query(new ValidationPipe({ transform: true })) query: AccountQueryParamDTO
+        @Query(new ValidationPipe({ transform: true })) query: AccountQueryParamDTO,
+        @Req() request: AuthRequest
     ): Promise<ResponseAccountDTO[]> {
         if (query.account_ids) {
             return await this.accountService.getByIds(query.account_ids);
+        }
+
+        if (!this.isOrganizer(request.user)) {
+            throw new ForbiddenException('Not enough permission');
         }
         return await this.accountService.getAll(query.q);
     }
@@ -76,14 +82,6 @@ export class AccountController {
     @UseGuards(JwtAuthGuard, RolesGuard)
     @Roles([AccountRoles.USER, AccountRoles.JUDGE, AccountRoles.ADMIN, AccountRoles.ORGANIZER])
     async find(@Param('account_id') id: string, @Req() req: AuthRequest): Promise<ResponseAccountDTO> {
-        const user = req.user;
-
-        const hasPermission = containsRole(user.user_roles, [AccountRoles.ADMIN, AccountRoles.ORGANIZER]);
-        const isTheSameUser = id === user.sub;
-        
-        if (!isTheSameUser && !hasPermission) {
-            throw new Error('no');
-        }
         return await this.accountService.getByIdOrFail(id);
     }
 
@@ -147,5 +145,11 @@ export class AccountController {
     @Roles([AccountRoles.JUDGE, AccountRoles.ADMIN, AccountRoles.ORGANIZER])
     async delete(@Param('account_id') id: string): Promise<void> {
         return await this.accountService.delete(id);
+    }
+
+      
+    isOrganizer(user: HackCCUser) {
+    return user.user_roles.find(r => 
+        [AccountRoles.ADMIN, AccountRoles.ORGANIZER, AccountRoles.JUDGE].includes(r))
     }
 }

@@ -62,6 +62,22 @@ export class NotificationService {
     }
 
     /**
+     * Gets all notification by userId and teamid
+     * @param accountId The ID of the account
+     * @param teamId The ID of the team
+     * @returns {Promise<Notification>} Notification object
+     */
+    async getByAccountIdAndTeamId(accountId: string, teamId: string): Promise<Notification> {
+        return this.notificationRepository.findOne({
+            where: { account: { id: accountId }, team: { id: teamId } },
+            relations: { 
+                team: { accounts: true }, 
+                account: true 
+            }
+        });
+    }
+
+    /**
      * Accepts a notification invite and adds the user to the team
      * @param notificationId The ID of the notification
      * @param accountId The ID of the account accepting the invite
@@ -84,6 +100,12 @@ export class NotificationService {
 
         if (notification.account.id !== accountId) {
             throw new ForbiddenException('Notification does not belong to this user');
+        }
+        
+        const account = await this.accountService.getByIdOrFail(accountId)
+
+        if (account.team) {
+            throw new ForbiddenException('User already belongs to a team');
         }
 
         const team = await this.teamService.getByIdOrFail(notification.team.id);
@@ -111,5 +133,27 @@ export class NotificationService {
             team: updatedTeam,
             account: accountObj
         };
+    }
+
+    async deny(notificationId: string, accountId: string): Promise<void> {
+        // Find the notification to ensure it exists and belongs to the user
+        const notification = await this.notificationRepository.findOne({
+            where: { id: notificationId },
+            relations: { account: true }
+        });
+
+        if (!notification) {
+            throw new NotFoundException(`Notification with id ${notificationId} not found`);
+        }
+
+        if (notification.account.id !== accountId) {
+            // This is a forbidden action: attempting to deny a notification that doesn't belong to the user
+            throw new ForbiddenException('Notification does not belong to this user');
+        }
+
+        // Delete the notification
+        await this.notificationRepository.delete(notificationId);
+        
+        this.logger.info({ msg: 'Notification denied (deleted)', notificationId, accountId });
     }
 }

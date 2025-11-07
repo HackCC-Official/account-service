@@ -7,7 +7,7 @@ export class Notification {
     @PrimaryGeneratedColumn("uuid")
     id: string;
 
-    @ManyToOne(() => Account, { nullable: false })
+    @ManyToOne(() => Account, { nullable: false, onDelete: 'CASCADE' })
     account: Account;
 
     @ManyToOne(() => Team, { nullable: false })

@@ -22,6 +22,15 @@ export class NotificationController {
     async create(
         @Body() requestNotificationDTO: RequestNotificationDTO
     ): Promise<ResponseNotificationDTO> {
+        const notificationExists = await this.notificationService.getByAccountIdAndTeamId(
+            requestNotificationDTO.accountId,
+            requestNotificationDTO.teamId
+        )
+
+        if (notificationExists) {
+            return notificationExists;
+        }
+
         const notification = await this.notificationService.create(
             requestNotificationDTO.accountId,
             requestNotificationDTO.teamId
@@ -87,5 +96,25 @@ export class NotificationController {
             team: team as any,
             account: account as any
         };
+    }
+
+    @Post(':id/deny')
+    @ApiOperation({
+        summary: 'Denies a notification invite and adds the user to the team'
+    })
+    @ApiParam({
+        description: 'ID of the notification',
+        name: 'id'
+    })
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles([AccountRoles.USER, AccountRoles.JUDGE, AccountRoles.ADMIN, AccountRoles.ORGANIZER])
+    async deny(
+        @Param('id') id: string,
+        @Req() req: AuthRequest
+    ) {
+        const result = await this.notificationService.deny(id, req.user.sub);
+        return {
+            status: 'deleted'
+        }
     }
 }
