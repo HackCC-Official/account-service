@@ -62,7 +62,8 @@ export class AccountController {
         @Req() request: AuthRequest
     ): Promise<ResponseAccountDTO[]> {
         if (query.account_ids) {
-            return await this.accountService.getByIds(query.account_ids);
+            const account_ids = query.account_ids.filter(a => a != '')
+            return await this.accountService.getByIds(account_ids);
         }
 
         if (!this.isOrganizer(request.user)) {
